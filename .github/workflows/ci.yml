@@ -24,7 +24,24 @@ jobs:
   backend:
     name: Backend - lint, format, test
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+
+    # Throw-away PostgreSQL 16 (same major version as local, D-17) for integration tests.
+    # Test-only credentials; this database exists only for the length of the job.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: app_user
+          POSTGRES_PASSWORD: ci_test_password
+          POSTGRES_DB: appointments_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app_user -d appointments_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
 
     steps:
       - name: Checkout code
@@ -47,6 +64,11 @@ jobs:
 
       - name: Unit tests with coverage
         run: npm run test:coverage
+
+      - name: Integration tests (real PostgreSQL)
+        run: npm run test:integration
+        env:
+          DATABASE_URL: postgresql://app_user:ci_test_password@localhost:5432/appointments_test
 
       - name: Security audit (production dependencies)
         run: npm audit --omit=dev --audit-level=high

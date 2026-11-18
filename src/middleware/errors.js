@@ -10,7 +10,7 @@ export function notFoundHandler(_req, res) {
 }
 
 // Express recognises error handlers by their 4 arguments, so `_next` must stay.
-export function errorHandler(err, _req, res, _next) {
+export function errorHandler(err, req, res, _next) {
   // Errors we raised on purpose (validation, auth, conflicts...)
   if (err instanceof AppError) {
     const body = { code: err.code, message: err.message };
@@ -25,8 +25,23 @@ export function errorHandler(err, _req, res, _next) {
     });
   }
 
+  if (err.type === 'entity.too.large') {
+    return res.status(413).json({
+      error: { code: 'PAYLOAD_TOO_LARGE', message: 'Request body is too large.' },
+    });
+  }
+
   // Never leak stack traces or internal details to the client.
-  console.error(err);
+  console.error(
+    JSON.stringify({
+      level: 'error',
+      time: new Date().toISOString(),
+      requestId: req?.id,
+      message: err?.message,
+      code: err?.code,
+      stack: err?.stack,
+    }),
+  );
   return res.status(500).json({
     error: { code: 'INTERNAL_ERROR', message: 'Something went wrong.' },
   });

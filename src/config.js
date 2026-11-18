@@ -15,6 +15,11 @@ export const config = Object.freeze({
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '1h',
   // NFR-3: login attempts allowed per IP per minute.
   loginRateLimitPerMinute: toInt(process.env.LOGIN_RATE_LIMIT_PER_MINUTE, 5),
+  // Clinic time zone Asia/Kolkata = UTC+05:30 (no daylight saving) — D-22.
+  clinicUtcOffsetMinutes: 330,
+  // Business limits (REQUIREMENTS FR-4.3, FR-5.1 — open item O-4 to confirm).
+  bookingWindowDays: 30,
+  patientChangeCutoffHours: 2,
 });
 
 // Fails fast at startup instead of failing later on the first request.

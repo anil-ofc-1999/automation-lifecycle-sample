@@ -1,0 +1,719 @@
+openapi: 3.1.0
+info:
+  title: Doctor Appointment Booking API
+  version: 0.2.0
+  description: |
+    API for the Doctor Appointment Booking sample (see REQUIREMENTS.md).
+    All times are ISO 8601. Instants are stored in UTC; dates (YYYY-MM-DD) and
+    schedule times (HH:MM) are in clinic time, Asia/Kolkata (UTC+05:30).
+    Errors always use the `Error` body. Keep this file in sync with the code (NFR-8);
+    tests/openapi.test.js checks every route is documented.
+servers:
+  - url: http://localhost:3000/api/v1
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Auth
+  - name: Specializations
+  - name: Doctors
+  - name: Doctor self-service
+  - name: Appointments
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Patient self-registration (FR-1.1 – FR-1.4, FR-1.8)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name: { type: string, minLength: 2, maxLength: 100 }
+                email:
+                  {
+                    type: string,
+                    format: email,
+                    description: Stored lower-case; unique ignoring case,
+                  }
+                phone: { type: string, description: 'Optional, 7–20 digits, may start with +' }
+                password:
+                  type: string
+                  minLength: 8
+                  maxLength: 72
+                  description: At least one letter and one number
+      responses:
+        '201': { $ref: '#/components/responses/UserResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login, returns a Bearer token valid for 1 hour (FR-1.5, FR-1.6)
+      description: Same 401 error for unknown email and wrong password. Limited to 5 attempts per minute per IP (NFR-3).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken: { type: string }
+                  tokenType: { type: string, const: Bearer }
+                  expiresIn: { type: string, example: 1h }
+                  user: { $ref: '#/components/schemas/User' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /me:
+    get:
+      tags: [Auth]
+      summary: Current user's profile
+      responses:
+        '200': { $ref: '#/components/responses/UserResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /specializations:
+    get:
+      tags: [Specializations]
+      summary: List specializations (active only; admin may include inactive)
+      parameters:
+        - { name: includeInactive, in: query, schema: { type: string, enum: ['true', 'false'] } }
+      responses:
+        '200':
+          description: List
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/Specialization' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Specializations]
+      summary: Create a specialization (admin, FR-2.1)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, minLength: 2, maxLength: 100 }
+      responses:
+        '201': { $ref: '#/components/responses/SpecializationResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /specializations/{id}:
+    patch:
+      tags: [Specializations]
+      summary: Rename / activate / deactivate (admin, FR-2.1)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                name: { type: string, minLength: 2, maxLength: 100 }
+                isActive: { type: boolean }
+      responses:
+        '200': { $ref: '#/components/responses/SpecializationResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /doctors:
+    get:
+      tags: [Doctors]
+      summary: List / search doctors, paginated (FR-2.4, FR-2.5)
+      description: Patients and doctors see only bookable doctors. Admin may add includeInactive=true.
+      parameters:
+        - { name: specializationId, in: query, schema: { type: integer } }
+        - {
+            name: search,
+            in: query,
+            description: Partial name,
+            case-insensitive,
+            schema: { type: string },
+          }
+        - { name: includeInactive, in: query, schema: { type: string, enum: ['true', 'false'] } }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PageSize' }
+      responses:
+        '200':
+          description: Page of doctors
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/PageInfo' }
+                  - type: object
+                    properties:
+                      items: { type: array, items: { $ref: '#/components/schemas/Doctor' } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Doctors]
+      summary: Create a doctor and its login account (admin, FR-2.2, FR-1.8)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password, specializationId, fee, slotMinutes]
+              properties:
+                name: { type: string }
+                email: { type: string, format: email }
+                password: { type: string, description: Same rules as registration }
+                specializationId: { type: integer }
+                fee: { type: number, minimum: 0, description: At most 2 decimals }
+                slotMinutes: { type: integer, enum: [15, 30] }
+                bio: { type: string, maxLength: 2000 }
+      responses:
+        '201': { $ref: '#/components/responses/DoctorResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /doctors/{id}:
+    get:
+      tags: [Doctors]
+      summary: Doctor details
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200': { $ref: '#/components/responses/DoctorResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Doctors]
+      summary: Update / activate / deactivate a doctor (admin, FR-2.3)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                name: { type: string }
+                specializationId: { type: integer }
+                fee: { type: number }
+                slotMinutes: { type: integer, enum: [15, 30] }
+                bio: { type: [string, 'null'] }
+                isActive: { type: boolean }
+      responses:
+        '200': { $ref: '#/components/responses/DoctorResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /doctors/{id}/slots:
+    get:
+      tags: [Doctors]
+      summary: Slots of a doctor for a date (FR-3.4, FR-3.5)
+      description: Slots that already started are not listed. On a leave date, onLeave is true and slots is empty.
+      parameters:
+        - { $ref: '#/components/parameters/Id' }
+        - { name: date, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: Slots
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  doctorId: { type: integer }
+                  date: { type: string, format: date }
+                  slotMinutes: { type: integer }
+                  onLeave: { type: boolean }
+                  slots:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        time: { type: string, example: '10:30' }
+                        startAt: { type: string, format: date-time }
+                        endAt: { type: string, format: date-time }
+                        status: { type: string, enum: [AVAILABLE, BOOKED] }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /doctors/me/schedule:
+    get:
+      tags: [Doctor self-service]
+      summary: Own weekly schedule (doctor)
+      responses:
+        '200': { $ref: '#/components/responses/ScheduleResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    put:
+      tags: [Doctor self-service]
+      summary: Replace own weekly schedule (doctor, FR-3.1, FR-3.2, FR-3.6)
+      description: Blocks on the same day must not overlap. Existing bookings are kept.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [blocks]
+              properties:
+                blocks:
+                  type: array
+                  maxItems: 50
+                  items: { $ref: '#/components/schemas/ScheduleBlockInput' }
+      responses:
+        '200': { $ref: '#/components/responses/ScheduleResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /doctors/me/leaves:
+    get:
+      tags: [Doctor self-service]
+      summary: Own upcoming leave dates (doctor)
+      responses:
+        '200':
+          description: Leaves
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { type: object, properties: { date: { type: string, format: date } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Doctor self-service]
+      summary: Mark a leave date (doctor, FR-3.3)
+      description: Existing bookings on that date are not cancelled; their count is returned.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [date]
+              properties:
+                date: { type: string, format: date }
+      responses:
+        '201':
+          description: Leave added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  leave: { type: object, properties: { date: { type: string, format: date } } }
+                  existingBookings: { type: integer }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /doctors/me/leaves/{date}:
+    delete:
+      tags: [Doctor self-service]
+      summary: Remove a leave date (doctor)
+      parameters:
+        - { name: date, in: path, required: true, schema: { type: string, format: date } }
+      responses:
+        '204': { description: Removed }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /appointments:
+    post:
+      tags: [Appointments]
+      summary: Book a slot (patient, FR-4)
+      description: |
+        Rules: future slot (FR-4.2), at most 30 days ahead (FR-4.3), inside the schedule and
+        not on leave (FR-4.6), one active booking per slot (FR-4.4, enforced by the database),
+        one per patient per doctor per day (FR-4.5).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [doctorId, startAt]
+              properties:
+                doctorId: { type: integer }
+                startAt: { type: string, format: date-time, example: '2026-12-01T10:00:00+05:30' }
+      responses:
+        '201': { $ref: '#/components/responses/AppointmentResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    get:
+      tags: [Appointments]
+      summary: All appointments with filters, newest first (admin, FR-6.3)
+      parameters:
+        - { name: doctorId, in: query, schema: { type: integer } }
+        - { name: status, in: query, schema: { $ref: '#/components/schemas/AppointmentStatus' } }
+        - { name: from, in: query, schema: { type: string, format: date } }
+        - { name: to, in: query, schema: { type: string, format: date } }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PageSize' }
+      responses:
+        '200':
+          description: Page of appointments
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/PageInfo' }
+                  - type: object
+                    properties:
+                      items: { type: array, items: { $ref: '#/components/schemas/Appointment' } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /appointments/me:
+    get:
+      tags: [Appointments]
+      summary: Own appointments (patient FR-6.1, doctor FR-6.2)
+      description: |
+        Patient: `{ upcoming, past }` — upcoming soonest first, past newest first.
+        Doctor: `{ date, items }` for one date (default today), in time order.
+      parameters:
+        - {
+            name: date,
+            in: query,
+            description: Doctor only,
+            schema: { type: string, format: date },
+          }
+      responses:
+        '200':
+          description: Appointments
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      upcoming: { type: array, items: { $ref: '#/components/schemas/Appointment' } }
+                      past: { type: array, items: { $ref: '#/components/schemas/Appointment' } }
+                  - type: object
+                    properties:
+                      date: { type: string, format: date }
+                      items: { type: array, items: { $ref: '#/components/schemas/Appointment' } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /appointments/{id}/cancel:
+    post:
+      tags: [Appointments]
+      summary: Cancel (patient own ≥ 2 h before start; admin any time) — FR-5.1, FR-5.5
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200': { $ref: '#/components/responses/AppointmentResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /appointments/{id}/reschedule:
+    post:
+      tags: [Appointments]
+      summary: Move own booking to another slot of the same doctor, atomically (patient, FR-5.2)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [startAt]
+              properties:
+                startAt: { type: string, format: date-time }
+      responses:
+        '201':
+          description: New booking created, old one cancelled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  appointment: { $ref: '#/components/schemas/Appointment' }
+                  previousAppointmentId: { type: integer }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /appointments/{id}/complete:
+    post:
+      tags: [Appointments]
+      summary: Mark own appointment COMPLETED after its start time (doctor, FR-5.4)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200': { $ref: '#/components/responses/AppointmentResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /appointments/{id}/no-show:
+    post:
+      tags: [Appointments]
+      summary: Mark own appointment NO_SHOW after its start time (doctor, FR-5.4)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200': { $ref: '#/components/responses/AppointmentResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+    PageSize:
+      name: pageSize
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              examples:
+                - VALIDATION_ERROR
+                - UNAUTHORIZED
+                - TOKEN_EXPIRED
+                - FORBIDDEN
+                - NOT_FOUND
+                - EMAIL_TAKEN
+                - SLOT_ALREADY_BOOKED
+                - DAILY_LIMIT_REACHED
+                - INVALID_STATUS_TRANSITION
+            message: { type: string }
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field: { type: string }
+                  message: { type: string }
+    Role:
+      type: string
+      enum: [PATIENT, DOCTOR, ADMIN]
+    AppointmentStatus:
+      type: string
+      enum: [BOOKED, COMPLETED, NO_SHOW, CANCELLED]
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        phone: { type: [string, 'null'] }
+        role: { $ref: '#/components/schemas/Role' }
+    Specialization:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        isActive: { type: boolean }
+    Doctor:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        specialization:
+          type: object
+          properties:
+            id: { type: integer }
+            name: { type: string }
+        fee: { type: number }
+        slotMinutes: { type: integer, enum: [15, 30] }
+        bio: { type: [string, 'null'] }
+        isActive: { type: boolean }
+        email: { type: string, description: Admin only }
+        userId: { type: integer, description: Admin only }
+        accountActive: { type: boolean, description: Admin only }
+    ScheduleBlockInput:
+      type: object
+      required: [dayOfWeek, startTime, endTime]
+      properties:
+        dayOfWeek: { type: integer, minimum: 0, maximum: 6, description: 0 = Sunday }
+        startTime: { type: string, example: '10:00' }
+        endTime: { type: string, example: '13:00' }
+    Appointment:
+      type: object
+      properties:
+        id: { type: integer }
+        status: { $ref: '#/components/schemas/AppointmentStatus' }
+        startAt: { type: string, format: date-time }
+        endAt: { type: string, format: date-time }
+        date: { type: string, format: date, description: Clinic-local date }
+        time: { type: string, example: '10:30', description: Clinic-local start time }
+        doctor:
+          type: object
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            specialization: { type: string }
+        patient:
+          type: object
+          properties:
+            id: { type: integer }
+            name: { type: string }
+        cancelledBy: { type: [integer, 'null'] }
+        cancelledAt: { type: [string, 'null'], format: date-time }
+        createdAt: { type: string, format: date-time }
+    PageInfo:
+      type: object
+      properties:
+        page: { type: integer }
+        pageSize: { type: integer }
+        total: { type: integer }
+        totalPages: { type: integer }
+
+  responses:
+    UserResponse:
+      description: User
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              user: { $ref: '#/components/schemas/User' }
+    SpecializationResponse:
+      description: Specialization
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              specialization: { $ref: '#/components/schemas/Specialization' }
+    DoctorResponse:
+      description: Doctor
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              doctor: { $ref: '#/components/schemas/Doctor' }
+    ScheduleResponse:
+      description: Weekly schedule
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              blocks:
+                type: array
+                items:
+                  allOf:
+                    - { $ref: '#/components/schemas/ScheduleBlockInput' }
+                    - type: object
+                      properties:
+                        id: { type: integer }
+    AppointmentResponse:
+      description: Appointment
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              appointment: { $ref: '#/components/schemas/Appointment' }
+    ValidationError:
+      description: Invalid input or business rule (e.g. SLOT_IN_PAST, OUTSIDE_SCHEDULE)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: Missing, invalid or expired token / wrong credentials
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Forbidden:
+      description: Wrong role or not the owner
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflict:
+      description: Duplicate or conflicting state (e.g. SLOT_ALREADY_BOOKED, EMAIL_TAKEN)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    TooManyRequests:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }

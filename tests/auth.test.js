@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 vi.mock('../src/db.js', () => ({
   prisma: { user: { findUnique: vi.fn(), create: vi.fn() } },
   isDatabaseUp: vi.fn(),
+  uniqueViolationIndex: (err) => (err?.code === 'P2002' ? 'users_email_lower_key' : null),
 }));
 
 import { prisma } from '../src/db.js';

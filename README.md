@@ -75,32 +75,62 @@ npm run db:seed             # optional: fake doctors / patients (login password:
 npm run dev                 # http://localhost:3000/health -> "database": "up"
 ```
 
-| Command                           | What it does                                                               |
-| --------------------------------- | -------------------------------------------------------------------------- |
-| `npm run dev`                     | Start API with auto-reload                                                 |
-| `npm start`                       | Start API (no reload)                                                      |
-| `npm run db:deploy`               | Apply all migration files to your local DB (run after `git pull`)          |
-| `npm run db:seed`                 | Fill the DB with fake test data (REQUIREMENTS §11); safe to re-run         |
-| `npm run db:migrate`              | Create/apply a Prisma migration (dev DB)                                   |
-| `npm run db:studio`               | Browse the database in Prisma Studio                                       |
-| `npm run lint`                    | ESLint                                                                     |
-| `npm run format` / `format:check` | Prettier write / check                                                     |
-| `npm test`                        | Run tests once                                                             |
-| `npm run test:coverage`           | Tests + coverage report (`coverage/`)                                      |
-| `npm run check`                   | Lint + format check + tests — **run before every push** (CI runs the same) |
+| Command                           | What it does                                                                            |
+| --------------------------------- | --------------------------------------------------------------------------------------- |
+| `npm run dev`                     | Start API with auto-reload                                                              |
+| `npm start`                       | Start API (no reload)                                                                   |
+| `npm run db:deploy`               | Apply all migration files to your local DB (run after `git pull`)                       |
+| `npm run db:seed`                 | Fill the DB with fake test data (REQUIREMENTS §11); safe to re-run                      |
+| `npm run db:migrate`              | Create/apply a Prisma migration (dev DB)                                                |
+| `npm run db:studio`               | Browse the database in Prisma Studio                                                    |
+| `npm run lint`                    | ESLint                                                                                  |
+| `npm run format` / `format:check` | Prettier write / check                                                                  |
+| `npm test`                        | Run tests once                                                                          |
+| `npm run test:coverage`           | Tests + coverage report (`coverage/`)                                                   |
+| `npm run check`                   | Lint + format + unit + integration tests — **run before every push** (CI runs the same) |
 
-## API endpoints (so far)
+## API endpoints
 
-Base path `/api/v1`. Errors use `{ "error": { "code", "message" } }` (REQUIREMENTS §7).
+Base path `/api/v1`. Full contract: [docs/openapi.yaml](docs/openapi.yaml) (OpenAPI 3.1, checked by tests).
+Errors use `{ "error": { "code", "message", "details"? } }` (REQUIREMENTS §7).
 
-| Method | Path             | Auth         | Purpose                                         |
-| ------ | ---------------- | ------------ | ----------------------------------------------- |
-| POST   | `/auth/register` | Public       | Patient registration (FR-1.1 – FR-1.4)          |
-| POST   | `/auth/login`    | Public       | Returns a Bearer token, 1 hour (FR-1.5, FR-1.6) |
-| GET    | `/me`            | Bearer token | Current user profile (FR-1.7)                   |
+| Method | Path                                 | Role             | Purpose                                   |
+| ------ | ------------------------------------ | ---------------- | ----------------------------------------- |
+| POST   | `/auth/register`                     | Public           | Patient registration (FR-1)               |
+| POST   | `/auth/login`                        | Public           | Login, 1-hour Bearer token (FR-1)         |
+| GET    | `/me`                                | Any              | Current user profile                      |
+| GET    | `/specializations`                   | Any              | List specializations                      |
+| POST   | `/specializations`                   | Admin            | Create (FR-2.1)                           |
+| PATCH  | `/specializations/:id`               | Admin            | Rename / (de)activate (FR-2.1)            |
+| GET    | `/doctors`                           | Any              | List / search / paginate (FR-2.4, FR-2.5) |
+| GET    | `/doctors/:id`                       | Any              | Doctor details                            |
+| POST   | `/doctors`                           | Admin            | Create doctor + login (FR-2.2)            |
+| PATCH  | `/doctors/:id`                       | Admin            | Update / (de)activate (FR-2.3)            |
+| GET    | `/doctors/:id/slots?date=YYYY-MM-DD` | Any              | Slots AVAILABLE / BOOKED (FR-3.4, FR-3.5) |
+| GET    | `/doctors/me/schedule`               | Doctor           | Own weekly schedule                       |
+| PUT    | `/doctors/me/schedule`               | Doctor           | Replace weekly schedule (FR-3.1, FR-3.2)  |
+| GET    | `/doctors/me/leaves`                 | Doctor           | Upcoming leave dates                      |
+| POST   | `/doctors/me/leaves`                 | Doctor           | Add leave date (FR-3.3)                   |
+| DELETE | `/doctors/me/leaves/:date`           | Doctor           | Remove leave date                         |
+| POST   | `/appointments`                      | Patient          | Book a slot (FR-4)                        |
+| GET    | `/appointments/me`                   | Patient / Doctor | Own appointments (FR-6.1, FR-6.2)         |
+| GET    | `/appointments`                      | Admin            | All appointments, filters (FR-6.3)        |
+| POST   | `/appointments/:id/cancel`           | Patient / Admin  | Cancel (FR-5.1, FR-5.5)                   |
+| POST   | `/appointments/:id/reschedule`       | Patient          | Reschedule atomically (FR-5.2)            |
+| POST   | `/appointments/:id/complete`         | Doctor           | Mark completed (FR-5.4)                   |
+| POST   | `/appointments/:id/no-show`          | Doctor           | Mark no-show (FR-5.4)                     |
 
 Login is limited to 5 attempts per minute per IP (NFR-3).
-Seeded accounts (`npm run db:seed`) log in with password `Password123`, e.g. `admin@example.com`.
+Seeded accounts (`npm run db:seed`) log in with password `Password123`, e.g. `admin@example.com`,
+`arjun.rao@example.com` (doctor), `asha.reddy@example.com` (patient).
+
+## Tests
+
+| Command                    | What runs                                                                    |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| `npm test`                 | Unit tests (fake database, fast)                                             |
+| `npm run test:integration` | Real-PostgreSQL tests in a separate `itest` schema — never touches your data |
+| `npm run check`            | Lint + format + unit + integration (pre-commit hook and CI run this)         |
 
 ## Branch protection
 

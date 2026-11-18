@@ -4,6 +4,8 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/**/*.test.js'],
+    // Real-database tests have their own config (vitest.integration.config.js).
+    exclude: ['node_modules/**', 'tests/integration/**'],
     // Test-only values; real ones come from .env (never committed).
     env: {
       JWT_SECRET: 'test-only-jwt-secret-at-least-32-characters',
