@@ -5,13 +5,13 @@
 - `main` — always deployable. **No direct pushes**; changes only through pull requests.
 - Work branches are created from `main`:
 
-| Prefix | Use | Example |
-|---|---|---|
-| `feature/` | New functionality | `feature/FR-4-booking-api` |
-| `fix/` | Bug fix | `fix/double-booking-race` |
-| `chore/` | Tooling, deps, config | `chore/add-eslint` |
-| `docs/` | Documentation only | `docs/update-requirements` |
-| `test/` | Tests only | `test/k6-booking-load` |
+| Prefix     | Use                   | Example                    |
+| ---------- | --------------------- | -------------------------- |
+| `feature/` | New functionality     | `feature/FR-4-booking-api` |
+| `fix/`     | Bug fix               | `fix/double-booking-race`  |
+| `chore/`   | Tooling, deps, config | `chore/add-eslint`         |
+| `docs/`    | Documentation only    | `docs/update-requirements` |
+| `test/`    | Tests only            | `test/k6-booking-load`     |
 
 Include the requirement ID (e.g. `FR-4`) in the branch name when there is one.
 

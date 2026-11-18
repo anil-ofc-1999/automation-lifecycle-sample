@@ -1,6 +1,8 @@
-# Backend CI — runs on every pull request to main and every push to main.
+# API CI — runs on every pull request to main and every push to main.
 # Same commands as `npm run check` locally, so local and CI results match.
-name: Backend CI
+# NOTE: the job name below is a required status check in the `protect-main` ruleset.
+#       Renaming it means updating the ruleset too.
+name: CI
 
 on:
   pull_request:
@@ -15,7 +17,7 @@ permissions:
 
 # A new push to the same PR cancels the older, now-outdated run.
 concurrency:
-  group: backend-ci-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -23,9 +25,6 @@ jobs:
     name: Backend - lint, format, test
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: appointment_node_API
 
     steps:
       - name: Checkout code
@@ -36,7 +35,6 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-          cache-dependency-path: appointment_node_API/package-lock.json
 
       - name: Install dependencies (exact versions from lockfile)
         run: npm ci
@@ -57,7 +55,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: backend-coverage
-          path: appointment_node_API/coverage/
+          name: coverage
+          path: coverage/
           retention-days: 7
           if-no-files-found: ignore

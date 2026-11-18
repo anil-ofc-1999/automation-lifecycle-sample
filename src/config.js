@@ -1,5 +1,5 @@
 // Central place to read environment variables.
-// Values come from the process environment (or appointment_node_API/.env locally — see .env.example).
+// Values come from the process environment (or .env locally — see .env.example).
 
 const toInt = (value, fallback) => {
   const n = Number.parseInt(value ?? '', 10);
