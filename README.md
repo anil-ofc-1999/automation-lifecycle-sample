@@ -70,6 +70,7 @@ Put the same password in `DATABASE_URL` in your `.env`. Avoid `#`, `@`, `/` in t
 ```powershell
 npm install                 # also runs `prisma generate`
 copy .env.example .env      # first time only, then set DATABASE_URL
+npm run db:deploy           # create / update the tables
 npm run dev                 # http://localhost:3000/health -> "database": "up"
 ```
 
@@ -77,6 +78,7 @@ npm run dev                 # http://localhost:3000/health -> "database": "up"
 | --------------------------------- | -------------------------------------------------------------------------- |
 | `npm run dev`                     | Start API with auto-reload                                                 |
 | `npm start`                       | Start API (no reload)                                                      |
+| `npm run db:deploy`               | Apply all migration files to your local DB (run after `git pull`)          |
 | `npm run db:migrate`              | Create/apply a Prisma migration (dev DB)                                   |
 | `npm run db:studio`               | Browse the database in Prisma Studio                                       |
 | `npm run lint`                    | ESLint                                                                     |

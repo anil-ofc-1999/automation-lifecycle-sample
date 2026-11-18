@@ -1,5 +1,7 @@
 // Database schema — see docs/REQUIREMENTS.md §6 for the data model.
-// Tables are added in later steps through versioned migrations (prisma migrate dev).
+// Change it only through versioned migrations: `npm run db:migrate -- --name <what-changed>`.
+// Rules Prisma cannot express (partial unique indexes, CHECKs, case-insensitive email)
+// are written as raw SQL inside the migration files.
 
 generator client {
   provider = "prisma-client-js"
@@ -7,4 +9,140 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+/// A user has exactly one role (REQUIREMENTS §4).
+enum Role {
+  PATIENT
+  DOCTOR
+  ADMIN
+}
+
+/// FR-5 status flow: BOOKED → COMPLETED | NO_SHOW | CANCELLED (final states).
+enum AppointmentStatus {
+  BOOKED
+  COMPLETED
+  NO_SHOW
+  CANCELLED
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(100)
+  /// FR-1.2: also unique case-insensitively (lower(email) index in migration).
+  email        String   @unique @db.VarChar(255)
+  phone        String?  @db.VarChar(20)
+  /// FR-1.4: bcrypt hash only, never the plain password.
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  role         Role     @default(PATIENT)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  doctor                Doctor?
+  patientAppointments   Appointment[]      @relation("PatientAppointments")
+  cancelledAppointments Appointment[]      @relation("CancelledBy")
+  auditEntries          AppointmentAudit[]
+
+  @@map("users")
+}
+
+model Specialization {
+  id       Int     @id @default(autoincrement())
+  name     String  @unique @db.VarChar(100)
+  isActive Boolean @default(true) @map("is_active")
+
+  doctors Doctor[]
+
+  @@map("specializations")
+}
+
+model Doctor {
+  id               Int     @id @default(autoincrement())
+  userId           Int     @unique @map("user_id")
+  specializationId Int     @map("specialization_id")
+  /// Consultation fee (FR-2.2).
+  fee              Decimal @db.Decimal(10, 2)
+  /// FR-2.2: 15 or 30 (CHECK in migration).
+  slotMinutes      Int     @map("slot_minutes") @db.SmallInt
+  bio              String? @db.Text
+  isActive         Boolean @default(true) @map("is_active")
+
+  user           User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+  specialization Specialization   @relation(fields: [specializationId], references: [id], onDelete: Restrict)
+  schedules      DoctorSchedule[]
+  leaves         DoctorLeave[]
+  appointments   Appointment[]
+
+  @@index([specializationId])
+  @@map("doctors")
+}
+
+/// FR-3.1: weekly schedule blocks; several blocks per day allowed.
+model DoctorSchedule {
+  id        Int      @id @default(autoincrement())
+  doctorId  Int      @map("doctor_id")
+  /// 0 = Sunday … 6 = Saturday (CHECK in migration).
+  dayOfWeek Int      @map("day_of_week") @db.SmallInt
+  startTime DateTime @map("start_time") @db.Time(0)
+  endTime   DateTime @map("end_time") @db.Time(0)
+
+  doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@index([doctorId, dayOfWeek])
+  @@map("doctor_schedules")
+}
+
+/// FR-3.3: no slots on leave dates.
+model DoctorLeave {
+  id        Int      @id @default(autoincrement())
+  doctorId  Int      @map("doctor_id")
+  leaveDate DateTime @map("leave_date") @db.Date
+
+  doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorId, leaveDate])
+  @@map("doctor_leaves")
+}
+
+model Appointment {
+  id          Int               @id @default(autoincrement())
+  doctorId    Int               @map("doctor_id")
+  patientId   Int               @map("patient_id")
+  /// Stored in UTC; shown in the clinic time zone (Asia/Kolkata).
+  startAt     DateTime          @map("start_at") @db.Timestamptz(3)
+  endAt       DateTime          @map("end_at") @db.Timestamptz(3)
+  status      AppointmentStatus @default(BOOKED)
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+  cancelledBy Int?              @map("cancelled_by")
+  cancelledAt DateTime?         @map("cancelled_at") @db.Timestamptz(3)
+
+  doctor          Doctor             @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  patient         User               @relation("PatientAppointments", fields: [patientId], references: [id], onDelete: Restrict)
+  cancelledByUser User?              @relation("CancelledBy", fields: [cancelledBy], references: [id], onDelete: Restrict)
+  auditEntries    AppointmentAudit[]
+
+  // FR-4.4 (one active booking per slot) and FR-4.5 (one per patient/doctor/day)
+  // are partial unique indexes added as raw SQL in the migration.
+  @@index([doctorId, startAt])
+  @@index([patientId, startAt])
+  @@map("appointments")
+}
+
+/// FR-5.7: who changed an appointment's status, and when.
+model AppointmentAudit {
+  id            Int                @id @default(autoincrement())
+  appointmentId Int                @map("appointment_id")
+  /// NULL for the first entry (booking created).
+  oldStatus     AppointmentStatus? @map("old_status")
+  newStatus     AppointmentStatus  @map("new_status")
+  changedBy     Int                @map("changed_by")
+  changedAt     DateTime           @default(now()) @map("changed_at") @db.Timestamptz(3)
+
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  changedByUser User        @relation(fields: [changedBy], references: [id], onDelete: Restrict)
+
+  @@index([appointmentId])
+  @@map("appointment_audit")
 }
