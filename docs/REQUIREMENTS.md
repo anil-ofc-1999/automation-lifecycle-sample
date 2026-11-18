@@ -281,7 +281,8 @@ Resolved on 2026-11-18: Express, Prisma, Angular 21 + npm, mono-repo, Docker for
 
 ## 13. Change log
 
-| Version | Date       | Change                                                |
-| ------- | ---------- | ----------------------------------------------------- |
-| 0.1     | 2026-11-18 | Initial draft                                         |
-| 0.2     | 2026-11-18 | Tech stack decisions recorded; open decisions updated |
+| Version | Date       | Change                                                                   |
+| ------- | ---------- | ------------------------------------------------------------------------ |
+| 0.1     | 2026-11-18 | Initial draft                                                            |
+| 0.2     | 2026-11-18 | Tech stack decisions recorded; open decisions updated                    |
+| 0.3     | 2026-11-18 | API implemented for FR-1 – FR-6; clarifications in DECISIONS D-22 – D-26 |

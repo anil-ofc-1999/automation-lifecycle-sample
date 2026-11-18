@@ -18,21 +18,25 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "check": "npm run lint && npm run format:check && npm test",
+    "check": "npm run lint && npm run format:check && npm test && npm run test:integration",
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "prepare": "git config core.hooksPath .githooks",
     "db:deploy": "prisma migrate deploy",
-    "db:seed": "node --env-file-if-exists=.env prisma/seed.js"
+    "db:seed": "node --env-file-if-exists=.env prisma/seed.js",
+    "test:integration": "vitest run --config vitest.integration.config.js"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
     "bcryptjs": "^3.0.3",
     "express": "^5.3.0",
-    "helmet": "^8.3.0"
+    "express-rate-limit": "^8.7.4",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -43,6 +47,7 @@
     "prettier": "^3.10.1",
     "prisma": "^7.10.1",
     "supertest": "^7.3.2",
-    "vitest": "^5.1.1"
+    "vitest": "^5.1.1",
+    "yaml": "^2.9.1"
   }
 }
