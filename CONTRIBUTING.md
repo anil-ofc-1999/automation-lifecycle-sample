@@ -48,6 +48,9 @@ git push -u origin feature/FR-x-short-name
 # open a pull request on GitHub
 ```
 
+A **pre-commit hook** (`.githooks/pre-commit`, enabled by `npm install`) runs `npm run check`
+before every commit. If lint, formatting or tests fail, the commit is blocked.
+
 ## Never commit
 
 - `.env` files, passwords, tokens, private keys, connection strings

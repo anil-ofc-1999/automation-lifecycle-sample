@@ -9,4 +9,5 @@ const toInt = (value, fallback) => {
 export const config = Object.freeze({
   env: process.env.NODE_ENV ?? 'development',
   port: toInt(process.env.PORT, 3000),
+  databaseUrl: process.env.DATABASE_URL,
 });

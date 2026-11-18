@@ -42,25 +42,43 @@ The Angular frontend lives in a separate repository: **appointment_web**.
 
 ## Prerequisites
 
-| Tool           | Version                        | Check              |
-| -------------- | ------------------------------ | ------------------ |
-| Node.js        | 24.x                           | `node --version`   |
-| npm            | 11.x                           | `npm --version`    |
-| Git            | any recent                     | `git --version`    |
-| Docker Desktop | latest (for PostgreSQL, later) | `docker --version` |
+| Tool       | Version                | Check            |
+| ---------- | ---------------------- | ---------------- |
+| Node.js    | 24.x                   | `node --version` |
+| npm        | 11.x                   | `npm --version`  |
+| Git        | any recent             | `git --version`  |
+| PostgreSQL | 16.x (team uses 16.14) | `psql --version` |
+
+## Database setup (first time only)
+
+Install PostgreSQL 16 for Windows (EDB installer), add `C:\Program Files\PostgreSQL\16\bin` to PATH, then:
+
+```powershell
+psql -U postgres
+```
+
+```sql
+CREATE USER app_user WITH PASSWORD 'your_password';
+CREATE DATABASE appointments OWNER app_user;
+\q
+```
+
+Put the same password in `DATABASE_URL` in your `.env`. Avoid `#`, `@`, `/` in the password (they break the URL).
 
 ## Local setup
 
 ```powershell
-npm install
-copy .env.example .env      # first time only
-npm run dev                 # http://localhost:3000/health
+npm install                 # also runs `prisma generate`
+copy .env.example .env      # first time only, then set DATABASE_URL
+npm run dev                 # http://localhost:3000/health -> "database": "up"
 ```
 
 | Command                           | What it does                                                               |
 | --------------------------------- | -------------------------------------------------------------------------- |
 | `npm run dev`                     | Start API with auto-reload                                                 |
 | `npm start`                       | Start API (no reload)                                                      |
+| `npm run db:migrate`              | Create/apply a Prisma migration (dev DB)                                   |
+| `npm run db:studio`               | Browse the database in Prisma Studio                                       |
 | `npm run lint`                    | ESLint                                                                     |
 | `npm run format` / `format:check` | Prettier write / check                                                     |
 | `npm test`                        | Run tests once                                                             |

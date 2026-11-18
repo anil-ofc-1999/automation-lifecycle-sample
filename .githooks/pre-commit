@@ -1,0 +1,11 @@
+#!/bin/sh
+# Runs before every commit. If lint, format check or tests fail, the commit is blocked.
+# Enabled automatically by `npm install` (the "prepare" script sets core.hooksPath).
+echo "pre-commit: running npm run check (lint + format + tests)..."
+npm run check --silent
+status=$?
+if [ $status -ne 0 ]; then
+  echo "pre-commit: checks FAILED - commit blocked. Fix the errors and try again."
+  exit 1
+fi
+echo "pre-commit: all checks passed."
