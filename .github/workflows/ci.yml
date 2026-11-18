@@ -1,4 +1,4 @@
-# API CI — runs on every pull request to main and every push to main.
+# API CI — runs on every pull request to main and every push to main or develop.
 # Same commands as `npm run check` locally, so local and CI results match.
 # NOTE: the job name below is a required status check in the `protect-main` ruleset.
 #       Renaming it means updating the ruleset too.
@@ -8,7 +8,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main]
+    branches: [main, develop]
   workflow_dispatch:
 
 # Least privilege: this workflow only needs to read the code.

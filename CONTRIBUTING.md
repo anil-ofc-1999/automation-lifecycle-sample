@@ -2,18 +2,15 @@
 
 ## Branches
 
-- `main` — always deployable. **No direct pushes**; changes only through pull requests.
-- Work branches are created from `main`:
+We use **two long-lived branches** only (decision D-21):
 
-| Prefix     | Use                   | Example                    |
-| ---------- | --------------------- | -------------------------- |
-| `feature/` | New functionality     | `feature/FR-4-booking-api` |
-| `fix/`     | Bug fix               | `fix/double-booking-race`  |
-| `chore/`   | Tooling, deps, config | `chore/add-eslint`         |
-| `docs/`    | Documentation only    | `docs/update-requirements` |
-| `test/`    | Tests only            | `test/k6-booking-load`     |
+| Branch    | Purpose                                                             |
+| --------- | ------------------------------------------------------------------- |
+| `main`    | Released, always working code. **No direct pushes** — only via PR.  |
+| `develop` | All day-to-day work. Commit here, push here, CI runs on every push. |
 
-Include the requirement ID (e.g. `FR-4`) in the branch name when there is one.
+When `develop` is ready, open **one pull request `develop` → `main`**.
+The same flow is used in `appointment_web`.
 
 ## Commits
 
@@ -27,25 +24,25 @@ docs: add decisions log
 chore(ci): add lint job
 ```
 
-## Pull requests
+## Pull requests (`develop` → `main`)
 
-1. Keep PRs small: one feature or fix.
-2. Fill in the PR template (what, why, requirement IDs, how tested).
-3. All required CI checks must pass before merge.
-4. At least one review (for this personal sample: self-review using the checklist).
-5. Squash-merge into `main` and delete the branch.
+1. Fill in the PR template (what, why, requirement IDs, how tested).
+2. All required CI checks must pass before merge.
+3. Self-review using the checklist (personal sample).
+4. Merge with **"Create a merge commit"** — **not** squash. Squash would make
+   `develop` and `main` drift apart and cause conflicts on the next PR.
+5. Do **not** delete `develop` after merging.
 
 ## Daily flow
 
 ```powershell
-git switch main
+git switch develop
 git pull
-git switch -c feature/FR-x-short-name
 # ...make changes, run checks locally...
 git add .
 git commit -m "feat(scope): message"
-git push -u origin feature/FR-x-short-name
-# open a pull request on GitHub
+git push
+# when ready to release: open a pull request develop -> main on GitHub
 ```
 
 A **pre-commit hook** (`.githooks/pre-commit`, enabled by `npm install`) runs `npm run check`
