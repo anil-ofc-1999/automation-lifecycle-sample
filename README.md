@@ -24,10 +24,10 @@ patients book appointments with doctors.
 
 ```
 .
-├── backend/              Express API
+├── appointment_node_API/ Express API (backend)
 │   ├── src/              app.js, server.js, routes/, middleware/
 │   └── tests/            Vitest + Supertest tests
-├── frontend/             Angular app (to be scaffolded)
+├── appointment_web/      Angular app (frontend, to be scaffolded)
 ├── docs/                 Requirements, decisions, architecture
 ├── .github/
 │   ├── workflows/        GitHub Actions pipelines (to be added)
@@ -53,7 +53,7 @@ patients book appointments with doctors.
 ### Backend
 
 ```powershell
-cd backend
+cd appointment_node_API
 npm install
 copy .env.example .env      # first time only
 npm run dev                 # http://localhost:3000/health

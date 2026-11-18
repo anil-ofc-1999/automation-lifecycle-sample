@@ -17,6 +17,7 @@ Newest at the bottom. Change a decision by adding a new entry, not by editing an
 | D-10 | 2026-11-18 | Backend tests: Vitest + Supertest | Works with ES modules without extra config; built-in coverage | Accepted (can be revisited) |
 | D-11 | 2026-11-18 | Backend lint/format: ESLint (flat config) + Prettier | Standard JS tooling; runs locally and in CI | Accepted |
 | D-12 | 2026-11-18 | Env vars loaded with Node's built-in `--env-file-if-exists`; dev reload with `node --watch` | Fewer dependencies (no dotenv / nodemon) | Accepted |
+| D-13 | 2026-11-18 | Rename `backend/` → `appointment_node_API/`, `frontend/` → `appointment_web/` (updates D-6 folder names) | Match company naming convention (`<project>_node`, `<project>_web`, e.g. AMS) | Accepted |
 
 ## Still open
 

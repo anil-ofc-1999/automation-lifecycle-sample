@@ -47,7 +47,7 @@ CI, automated tests (unit, API, DB, E2E, load), security checks, and DEV → UAT
 | Database | PostgreSQL + Prisma (local via Docker) | Confirmed (exact Postgres version open) |
 | MySQL | — | **Open:** needed or not? |
 | Source control / CI | GitHub + GitHub Actions (personal) | Confirmed |
-| Repo layout | Mono-repo (`backend/`, `frontend/`) | Confirmed |
+| Repo layout | Mono-repo (`appointment_node_API/`, `appointment_web/`) | Confirmed |
 | Hosting (DEV / UAT / PROD) | — | Open |
 
 See [DECISIONS.md](DECISIONS.md) for reasons and dates.
