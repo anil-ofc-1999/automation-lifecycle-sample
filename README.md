@@ -12,7 +12,8 @@ patients book appointments with doctors.
 
 | Layer | Technology |
 |---|---|
-| Backend | Node.js 24 + Express |
+| Backend | Node.js 24 + Express (JavaScript, ES modules) |
+| Backend tests / lint | Vitest + Supertest, ESLint, Prettier |
 | ORM / migrations | Prisma |
 | Database | PostgreSQL (runs in Docker locally) |
 | Frontend | Angular 21 |
@@ -23,7 +24,9 @@ patients book appointments with doctors.
 
 ```
 .
-├── backend/              Express API (to be scaffolded)
+├── backend/              Express API
+│   ├── src/              app.js, server.js, routes/, middleware/
+│   └── tests/            Vitest + Supertest tests
 ├── frontend/             Angular app (to be scaffolded)
 ├── docs/                 Requirements, decisions, architecture
 ├── .github/
@@ -47,7 +50,34 @@ patients book appointments with doctors.
 
 ## Local setup
 
-> Will be filled in as backend, frontend and database are added.
+### Backend
+
+```powershell
+cd backend
+npm install
+copy .env.example .env      # first time only
+npm run dev                 # http://localhost:3000/health
+```
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Start API with auto-reload |
+| `npm start` | Start API (no reload) |
+| `npm run lint` | ESLint |
+| `npm run format` / `format:check` | Prettier write / check |
+| `npm test` | Run tests once |
+| `npm run test:coverage` | Tests + coverage report (`coverage/`) |
+| `npm run check` | Lint + format check + tests — **run before every push** (CI runs the same) |
+
+### Frontend / database
+
+> Will be added in the next steps.
+
+## Known findings
+
+| Date | Finding | Decision |
+|---|---|---|
+| 2026-11-18 | `npm audit`: 6 high (ReDoS in `picomatch`) via Vitest — **dev dependencies only** | Accepted for now: not shipped to production (`npm audit --omit=dev` = 0). Re-check on Vitest updates. |
 
 ## Secrets
 

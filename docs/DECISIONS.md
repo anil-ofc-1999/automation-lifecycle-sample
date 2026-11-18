@@ -13,6 +13,10 @@ Newest at the bottom. Change a decision by adding a new entry, not by editing an
 | D-6 | 2026-11-18 | Mono-repo: `backend/` and `frontend/` in one repo | One CI setup, one PR per feature | Accepted |
 | D-7 | 2026-11-18 | Local PostgreSQL via Docker Desktop | Same DB setup locally and in CI; easy reset | Accepted (Docker install pending) |
 | D-8 | 2026-11-18 | Frontend: Angular 21 (CLI 21.2.10 installed), npm | Already installed on dev machine | Accepted |
+| D-9 | 2026-11-18 | Backend language: JavaScript (ES modules); frontend stays TypeScript (Angular) | Owner's choice; familiar, no build step for the API | Accepted |
+| D-10 | 2026-11-18 | Backend tests: Vitest + Supertest | Works with ES modules without extra config; built-in coverage | Accepted (can be revisited) |
+| D-11 | 2026-11-18 | Backend lint/format: ESLint (flat config) + Prettier | Standard JS tooling; runs locally and in CI | Accepted |
+| D-12 | 2026-11-18 | Env vars loaded with Node's built-in `--env-file-if-exists`; dev reload with `node --watch` | Fewer dependencies (no dotenv / nodemon) | Accepted |
 
 ## Still open
 
@@ -22,4 +26,3 @@ Newest at the bottom. Change a decision by adding a new entry, not by editing an
 | O-2 | Exact PostgreSQL version (proposal: 17) |
 | O-3 | Where will DEV / UAT / PROD run? |
 | O-4 | Confirm business limits: 2-hour cancel window, 30-day advance, 1 booking per doctor per day |
-| O-5 | Backend language: JavaScript or TypeScript? |

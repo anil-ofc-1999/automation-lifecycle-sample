@@ -42,7 +42,7 @@ CI, automated tests (unit, API, DB, E2E, load), security checks, and DEV → UAT
 
 | Layer | Choice | Status |
 |---|---|---|
-| Backend | Node.js 24 + Express | Confirmed |
+| Backend | Node.js 24 + Express, JavaScript (ES modules) | Confirmed |
 | Frontend | Angular 21, npm | Confirmed |
 | Database | PostgreSQL + Prisma (local via Docker) | Confirmed (exact Postgres version open) |
 | MySQL | — | **Open:** needed or not? |
@@ -261,7 +261,6 @@ Every confirmed bug gets a regression test referencing its requirement ID.
 |---|---|---|
 | 1 | Is MySQL needed at all in this sample? If yes, for what? | Project owner |
 | 2 | Exact PostgreSQL version (proposal: 17)? | Project owner |
-| 3 | Backend language: JavaScript or TypeScript? | Project owner |
 | 4 | Where will DEV / UAT / PROD run (local Docker, free cloud tier …)? | Project owner |
 | 5 | Confirm proposed limits: 2-hour cancel window, 30-day advance, 1 booking per doctor per day. | Project owner |
 
