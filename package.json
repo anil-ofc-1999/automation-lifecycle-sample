@@ -24,11 +24,13 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "prepare": "git config core.hooksPath .githooks",
-    "db:deploy": "prisma migrate deploy"
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "node --env-file-if-exists=.env prisma/seed.js"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
+    "bcryptjs": "^3.0.3",
     "express": "^5.3.0",
     "helmet": "^8.3.0"
   },
