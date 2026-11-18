@@ -1,0 +1,10 @@
+// Database schema — see docs/REQUIREMENTS.md §6 for the data model.
+// Tables are added in later steps through versioned migrations (prisma migrate dev).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
