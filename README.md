@@ -89,6 +89,19 @@ npm run dev                 # http://localhost:3000/health -> "database": "up"
 | `npm run test:coverage`           | Tests + coverage report (`coverage/`)                                      |
 | `npm run check`                   | Lint + format check + tests — **run before every push** (CI runs the same) |
 
+## API endpoints (so far)
+
+Base path `/api/v1`. Errors use `{ "error": { "code", "message" } }` (REQUIREMENTS §7).
+
+| Method | Path             | Auth         | Purpose                                         |
+| ------ | ---------------- | ------------ | ----------------------------------------------- |
+| POST   | `/auth/register` | Public       | Patient registration (FR-1.1 – FR-1.4)          |
+| POST   | `/auth/login`    | Public       | Returns a Bearer token, 1 hour (FR-1.5, FR-1.6) |
+| GET    | `/me`            | Bearer token | Current user profile (FR-1.7)                   |
+
+Login is limited to 5 attempts per minute per IP (NFR-3).
+Seeded accounts (`npm run db:seed`) log in with password `Password123`, e.g. `admin@example.com`.
+
 ## Branch protection
 
 `main` is protected by the `protect-main` ruleset: changes only via pull request, the

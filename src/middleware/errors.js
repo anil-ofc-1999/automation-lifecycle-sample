@@ -1,3 +1,5 @@
+import { AppError } from '../errors.js';
+
 // Standard error body (docs/REQUIREMENTS.md §7):
 // { "error": { "code": "SOME_CODE", "message": "Human readable message." } }
 
@@ -9,6 +11,13 @@ export function notFoundHandler(_req, res) {
 
 // Express recognises error handlers by their 4 arguments, so `_next` must stay.
 export function errorHandler(err, _req, res, _next) {
+  // Errors we raised on purpose (validation, auth, conflicts...)
+  if (err instanceof AppError) {
+    const body = { code: err.code, message: err.message };
+    if (err.details) body.details = err.details;
+    return res.status(err.status).json({ error: body });
+  }
+
   // Malformed JSON body sent by the client
   if (err.type === 'entity.parse.failed') {
     return res.status(400).json({

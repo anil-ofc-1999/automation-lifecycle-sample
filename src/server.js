@@ -1,6 +1,8 @@
 import { createApp } from './app.js';
-import { config } from './config.js';
+import { assertRequiredConfig, config } from './config.js';
 import { prisma } from './db.js';
+
+assertRequiredConfig();
 
 const app = createApp();
 
