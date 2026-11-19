@@ -244,7 +244,7 @@ paths:
     get:
       tags: [Doctors]
       summary: Slots of a doctor for a date (FR-3.4, FR-3.5)
-      description: Slots that already started are not listed. On a leave date, onLeave is true and slots is empty.
+      description: Only slots that can still be booked are listed — not started yet (FR-4.2) and at most 30 days ahead (FR-4.3). On a leave date, onLeave is true and slots is empty.
       parameters:
         - { $ref: '#/components/parameters/Id' }
         - { name: date, in: query, required: true, schema: { type: string, format: date } }
