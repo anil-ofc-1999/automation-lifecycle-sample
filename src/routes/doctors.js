@@ -117,6 +117,10 @@ async function assertActiveSpecialization(id) {
   }
 }
 
+// Prisma `contains` becomes ILIKE '%text%' without escaping, so "%" or "_" typed by a
+// user would act as wildcards and match every doctor. Escape them (and the escape char).
+export const escapeLikePattern = (text) => text.replace(/[\\%_]/g, '\\$&');
+
 // The doctor profile of the logged-in DOCTOR user.
 async function loadOwnDoctor(req) {
   const doctor = await prisma.doctor.findUnique({ where: { userId: req.user.userId } });
@@ -264,7 +268,7 @@ doctorsRouter.get('/', async (req, res) => {
       ? {
           user: {
             ...(showAll ? {} : BOOKABLE_DOCTOR_WHERE.user),
-            name: { contains: query.search, mode: 'insensitive' },
+            name: { contains: escapeLikePattern(query.search), mode: 'insensitive' },
           },
         }
       : {}),

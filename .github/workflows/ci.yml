@@ -65,6 +65,13 @@ jobs:
       - name: Unit tests with coverage
         run: npm run test:coverage
 
+      # Local installs here run PostgreSQL in India time; make CI do the same so time zone
+      # bugs (like D-28) fail in CI instead of hiding behind a UTC server.
+      - name: Run the test database in India time
+        run: >-
+          psql "postgresql://app_user:ci_test_password@localhost:5432/appointments_test"
+          -c "ALTER DATABASE appointments_test SET TimeZone TO 'Asia/Kolkata'"
+
       - name: Integration tests (real PostgreSQL)
         run: npm run test:integration
         env:

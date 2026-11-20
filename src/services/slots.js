@@ -1,4 +1,5 @@
 // Slot generation (FR-3.4, FR-3.5) — shared by the slots API and booking.
+import { config } from '../config.js';
 import { prisma } from '../db.js';
 import {
   DAY_MS,
@@ -58,13 +59,19 @@ export async function scheduledSlots(client, doctor, dateString) {
 
 const overlaps = (slot, appt) => appt.startAt < slot.endAt && appt.endAt > slot.startAt;
 
-// FR-3.5: each future slot with AVAILABLE / BOOKED.
+// FR-3.5: each bookable-in-time slot with AVAILABLE / BOOKED.
+// Only slots in the booking window are returned: not started yet (FR-4.2) and at most
+// `bookingWindowDays` ahead (FR-4.3) — the same rules booking uses, so the grid never
+// offers a slot that booking would reject.
 // A slot counts as BOOKED if any active booking overlaps it (covers old bookings
 // made before the doctor changed schedule or slot length — FR-3.6).
 export async function slotsForDate(doctor, dateString, now = new Date()) {
   if (await isOnLeave(prisma, doctor.id, dateString)) return { onLeave: true, slots: [] };
 
-  const slots = (await scheduledSlots(prisma, doctor, dateString)).filter((s) => s.startAt > now);
+  const windowEnd = now.getTime() + config.bookingWindowDays * DAY_MS;
+  const slots = (await scheduledSlots(prisma, doctor, dateString)).filter(
+    (s) => s.startAt > now && s.startAt.getTime() <= windowEnd,
+  );
   if (slots.length === 0) return { onLeave: false, slots: [] };
 
   const { start, end } = clinicDayRange(dateString);
