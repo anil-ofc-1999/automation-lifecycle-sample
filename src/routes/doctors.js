@@ -357,10 +357,19 @@ doctorsRouter.patch('/:id', requireRole('ADMIN'), async (req, res) => {
   if (input.specializationId !== undefined)
     await assertActiveSpecialization(input.specializationId);
 
-  const { name, ...doctorFields } = input;
+  // Use relation syntax for the specialization: Prisma rejects mixing a plain
+  // `specializationId` with the nested `user` update (a rename + specialization change
+  // in one request returned 500).
+  const { name, specializationId, ...doctorFields } = input;
   const doctor = await prisma.doctor.update({
     where: { id },
-    data: { ...doctorFields, ...(name !== undefined ? { user: { update: { name } } } : {}) },
+    data: {
+      ...doctorFields,
+      ...(specializationId !== undefined
+        ? { specialization: { connect: { id: specializationId } } }
+        : {}),
+      ...(name !== undefined ? { user: { update: { name } } } : {}),
+    },
     include: DOCTOR_INCLUDE,
   });
   res.json({ doctor: toDoctor(doctor, { admin: true }) });
