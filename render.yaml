@@ -54,13 +54,14 @@ services:
         value: '24'
     routes:
       # Same origin for the browser (no CORS): forward API calls to the API service.
-      # If Render gives the API another address, change these two destinations.
+      # Render added "-pcyh" to the API name (the plain name was taken). If the API is
+      # ever re-created with another address, change these two destinations.
       - type: rewrite
         source: /api/*
-        destination: https://appointment-api.onrender.com/api/*
+        destination: https://appointment-api-pcyh.onrender.com/api/*
       - type: rewrite
         source: /health
-        destination: https://appointment-api.onrender.com/health
+        destination: https://appointment-api-pcyh.onrender.com/health
       # Angular routes (e.g. /doctors/5) on reload / shared links.
       - type: rewrite
         source: /*
