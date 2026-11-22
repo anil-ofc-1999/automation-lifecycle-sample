@@ -131,6 +131,27 @@ Seeded accounts (`npm run db:seed`) log in with password `Password123`, e.g. `ad
 | `npm test`                 | Unit tests (fake database, fast)                                             |
 | `npm run test:integration` | Real-PostgreSQL tests in a separate `itest` schema — never touches your data |
 | `npm run check`            | Lint + format + unit + integration (pre-commit hook and CI run this)         |
+| `npm run load`             | k6 load test for NFR-1 / NFR-2 (needs [k6](https://k6.io) installed)         |
+| `npm run load:stress`      | Same without think time — a stress number, not a pass/fail target            |
+
+### Load test (NFR-1, NFR-2)
+
+`npm run load` re-creates a separate `loadtest` schema (migrate + seed — your data is never
+touched), starts its own API on port 3200 and runs `load/booking-load.js`:
+
+- **browse_and_book** — 50 patients (ramping up over 10 s) search doctors, open slots and
+  book, pausing 1–3 s between actions. Pass: p95 < 500 ms for search, slots and booking.
+- **same_slot_race** — 50 patients book the same slot at the same moment. Pass: exactly 1 × 201,
+  49 × 409, and exactly 1 booking stored.
+
+Results on the development laptop (API, PostgreSQL and k6 on one machine), 2026-11-22:
+
+| p95            | NFR-1 run (`npm run load`) | Stress (`npm run load:stress`, ~70 req/s) |
+| -------------- | -------------------------- | ----------------------------------------- |
+| Booking        | 66–69 ms ✅                | 621 ms                                    |
+| Doctor search  | 25–27 ms ✅                | 281 ms                                    |
+| Slots          | 33 ms ✅                   | 385 ms                                    |
+| Same-slot race | 1 booked / 49 conflicts ✅ | 1 booked / 49 conflicts                   |
 
 ## Branch protection
 
@@ -147,4 +168,8 @@ Never commit real secrets. Copy `.env.example` to `.env` and fill in local value
 | Date       | Finding                                                                           | Decision                                                                                                                                                                                   |
 | ---------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 2026-11-18 | `npm audit`: 6 high (ReDoS in `picomatch`) via Vitest — **dev dependencies only** | Accepted for now: not shipped to production (`npm audit --omit=dev` = 0). Re-check on Vitest updates.                                                                                      |
+| 2026-11-22 | `npm audit --omit=dev`: 3 high (ReDoS in `effect` ≤ 3.22.0) via the Prisma CLI    | Fixed: `overrides.effect = 3.22.5` (same major version; Prisma generate / migrate verified). Remove the override once Prisma ships a fixed `effect`. Audit now 0.                          |
+| 2026-11-22 | Registration had no rate limit (bulk account creation)                            | Fixed: 10 per minute per IP (`REGISTER_RATE_LIMIT_PER_MINUTE`), D-30.                                                                                                                      |
+| 2026-11-22 | Behind a hosting proxy all users would share one IP for rate limits               | Fixed: `TRUST_PROXY_HOPS` (set `1` on Render, `0` locally so `X-Forwarded-For` cannot be faked), D-30.                                                                                     |
+| 2026-11-22 | Secret scan of the full git history (both repos)                                  | Clean: `.env` never committed, only `CHANGE_ME` placeholders and test-only values. Next: add gitleaks to CI. Dependabot added (weekly, both repos).                                        |
 | 2026-11-18 | GitHub Free does not enforce rulesets on **private** repos                        | Repo made public (no secrets / personal data in code). Same plan-dependency exists in Bitbucket ("Enforce merge checks" needs Premium) — check the plan before rolling out at the company. |

@@ -44,8 +44,23 @@ export function createAuthRouter() {
       }),
   });
 
+  // D-30: limit registrations per IP so nobody can create accounts in bulk.
+  const registerLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    limit: config.registerRateLimitPerMinute,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+    handler: (_req, res) =>
+      res.status(429).json({
+        error: {
+          code: 'TOO_MANY_REQUESTS',
+          message: 'Too many registrations from this network. Try again in a minute.',
+        },
+      }),
+  });
+
   // FR-1.1, FR-1.8: anyone can register, but only as a PATIENT.
-  router.post('/register', async (req, res) => {
+  router.post('/register', registerLimiter, async (req, res) => {
     const input = validate(registerSchema, req.body);
 
     const existing = await prisma.user.findUnique({ where: { email: input.email } });

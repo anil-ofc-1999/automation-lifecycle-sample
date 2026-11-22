@@ -1,6 +1,7 @@
 import express from 'express';
 import helmet from 'helmet';
 
+import { config } from './config.js';
 import { errorHandler, notFoundHandler } from './middleware/errors.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { appointmentsRouter } from './routes/appointments.js';
@@ -15,6 +16,10 @@ export function createApp() {
   const app = express();
 
   app.disable('x-powered-by');
+  // Behind a hosting proxy (e.g. Render) every request comes from the proxy's IP; without
+  // this the per-IP rate limits would be shared by ALL users. Off by default so a client
+  // can never fake its IP with an X-Forwarded-For header (D-30).
+  if (config.trustProxyHops > 0) app.set('trust proxy', config.trustProxyHops);
   app.use(requestLogger);
   app.use(helmet());
   app.use(express.json({ limit: '100kb' }));
