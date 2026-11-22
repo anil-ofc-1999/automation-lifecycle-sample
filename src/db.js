@@ -21,9 +21,11 @@ export const SESSION_OPTIONS = '-c TimeZone=UTC';
 
 // One shared Prisma client for the whole app (it keeps a connection pool).
 // Prisma 7 talks to PostgreSQL through the `pg` driver adapter.
+// Pool size: pg's default of 10 made requests queue at 50 concurrent users (load test,
+// NFR-1). Configurable because hosted databases limit connections (D-29).
 export const prisma = new PrismaClient({
   adapter: new PrismaPg(
-    { connectionString: config.databaseUrl, options: SESSION_OPTIONS },
+    { connectionString: config.databaseUrl, options: SESSION_OPTIONS, max: config.dbPoolMax },
     { schema: schemaFromUrl(config.databaseUrl) },
   ),
 });

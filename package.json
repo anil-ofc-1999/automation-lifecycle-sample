@@ -26,7 +26,9 @@
     "prepare": "git config core.hooksPath .githooks",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "node --env-file-if-exists=.env prisma/seed.js",
-    "test:integration": "vitest run --config vitest.integration.config.js"
+    "test:integration": "vitest run --config vitest.integration.config.js",
+    "load": "node load/run.mjs",
+    "load:stress": "node load/run.mjs --stress"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
@@ -49,5 +51,8 @@
     "supertest": "^7.3.2",
     "vitest": "^5.1.1",
     "yaml": "^2.9.1"
+  },
+  "overrides": {
+    "effect": "3.22.5"
   }
 }

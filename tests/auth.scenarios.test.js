@@ -292,6 +292,24 @@ describe('login — negative scenarios', () => {
       expect((await register({ ...valid, email: `user${i}@example.com` })).status).toBe(201);
     }
   });
+
+  it('register allows 10 per minute per IP, the 11th gets 429 (D-30)', async () => {
+    for (let i = 0; i < 10; i += 1) {
+      expect((await register({ ...valid, email: `bulk${i}@example.com` })).status).toBe(201);
+    }
+
+    const eleventh = await register({ ...valid, email: 'bulk10@example.com' });
+
+    expect(eleventh.status).toBe(429);
+    expect(eleventh.body.error.code).toBe('TOO_MANY_REQUESTS');
+    expect(eleventh.body.error.message).toContain('registrations');
+  });
+
+  it('a failed registration also counts (no unlimited guessing of taken emails)', async () => {
+    for (let i = 0; i < 10; i += 1) await register({});
+
+    expect((await register(valid)).status).toBe(429);
+  });
 });
 
 describe('/me and tokens — negative scenarios (FR-1.7)', () => {

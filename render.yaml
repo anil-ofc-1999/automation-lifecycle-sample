@@ -1,0 +1,80 @@
+# Render Blueprint — creates the database, the API and the web app in one go.
+# Render: New → Blueprint → choose this repo → Apply. Deploys from `main` (merge develop first).
+# Free plans: the API sleeps after 15 min idle; the free database expires after 30 days.
+
+databases:
+  - name: appointments-db
+    plan: free
+    postgresMajorVersion: '16'
+    databaseName: appointments
+    user: app_user
+    ipAllowList: [] # no access from the internet — only Render services connect
+
+services:
+  # ---------- API (Node / Express) ----------
+  - type: web
+    name: appointment-api
+    runtime: node
+    plan: free
+    repo: https://github.com/anil-ofc-1999/automation-lifecycle-sample
+    branch: main
+    # Dev dependencies are needed at build time (Prisma CLI generates the client).
+    buildCommand: npm ci --include=dev
+    # Applies pending migrations, then starts. Migrations are additive and idempotent.
+    startCommand: npx prisma migrate deploy && node src/server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: '24'
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: appointments-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true # random, never in git
+      - key: JWT_EXPIRES_IN
+        value: 1h
+      - key: TRUST_PROXY_HOPS
+        value: '1' # Render's proxy: rate limits count per real client (D-30)
+      - key: DB_POOL_MAX
+        value: '5' # small databases allow few connections (D-29)
+
+  # ---------- Web (Angular, static files) ----------
+  - type: web
+    name: appointment-web
+    runtime: static
+    repo: https://github.com/anil-ofc-1999/appointment_web
+    branch: main
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist/appointment-web/browser
+    envVars:
+      - key: NODE_VERSION
+        value: '24'
+    routes:
+      # Same origin for the browser (no CORS): forward API calls to the API service.
+      # If Render gives the API another address, change these two destinations.
+      - type: rewrite
+        source: /api/*
+        destination: https://appointment-api.onrender.com/api/*
+      - type: rewrite
+        source: /health
+        destination: https://appointment-api.onrender.com/health
+      # Angular routes (e.g. /doctors/5) on reload / shared links.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=()

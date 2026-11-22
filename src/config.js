@@ -10,11 +10,17 @@ export const config = Object.freeze({
   env: process.env.NODE_ENV ?? 'development',
   port: toInt(process.env.PORT, 3000),
   databaseUrl: process.env.DATABASE_URL,
+  // Database connections per API instance (D-29). Keep below the server's limit.
+  dbPoolMax: toInt(process.env.DB_POOL_MAX, 20),
   // FR-1.5 / FR-1.6: secret used to sign access tokens, and how long they live.
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '1h',
   // NFR-3: login attempts allowed per IP per minute.
   loginRateLimitPerMinute: toInt(process.env.LOGIN_RATE_LIMIT_PER_MINUTE, 5),
+  // Registrations allowed per IP per minute (stops account spam; D-30).
+  registerRateLimitPerMinute: toInt(process.env.REGISTER_RATE_LIMIT_PER_MINUTE, 10),
+  // Number of proxies in front of the API (Render: 1). 0 = no proxy (local, default).
+  trustProxyHops: toInt(process.env.TRUST_PROXY_HOPS, 0),
   // Clinic time zone Asia/Kolkata = UTC+05:30 (no daylight saving) — D-22.
   clinicUtcOffsetMinutes: 330,
   // Business limits (REQUIREMENTS FR-4.3, FR-5.1 — open item O-4 to confirm).

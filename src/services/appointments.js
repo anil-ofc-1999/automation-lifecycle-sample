@@ -34,9 +34,20 @@ const errors = {
     ),
 };
 
-// Serialises booking work per doctor for the rest of the transaction.
-async function lockDoctor(tx, doctorId) {
-  await tx.$queryRaw`SELECT 1 FROM pg_advisory_xact_lock(${doctorId})`;
+// Clinic day number (days since 1970-01-01 in clinic time) of an instant.
+const clinicDayNumber = (instant) =>
+  Math.floor((instant.getTime() + config.clinicUtcOffsetMinutes * 60_000) / DAY_MS);
+
+// Serialises booking work per doctor AND clinic day for the rest of the transaction.
+// Both booking rules (one booking per slot, one per patient per doctor per day) are about
+// a single day, so bookings for other days of the same doctor no longer wait (D-29).
+// Several days are locked in ascending order, so two transactions can never deadlock.
+// The partial unique indexes stay the final guard (FR-4.4, FR-4.5).
+async function lockDoctorDays(tx, doctorId, ...instants) {
+  const days = [...new Set(instants.map(clinicDayNumber))].sort((a, b) => a - b);
+  for (const day of days) {
+    await tx.$queryRaw`SELECT 1 FROM pg_advisory_xact_lock(${doctorId}::int, ${day}::int)`;
+  }
 }
 
 function mapUniqueViolation(err) {
@@ -81,23 +92,24 @@ async function assertSlotBookable(tx, { doctor, patientId, startAt, now }) {
     );
   }
 
-  // Any active booking overlapping this slot (FR-4.4).
-  const clash = await tx.appointment.findFirst({
+  // One query for both rules (fewer round trips under load, D-29):
+  // - any active booking overlapping this slot (FR-4.4)
+  // - this patient's active booking with this doctor on this clinic day (FR-4.5)
+  const { start, end } = clinicDayRange(date);
+  const conflicts = await tx.appointment.findMany({
     where: {
       doctorId: doctor.id,
       status: 'BOOKED',
-      startAt: { lt: slot.endAt },
-      endAt: { gt: slot.startAt },
+      OR: [
+        { startAt: { lt: slot.endAt }, endAt: { gt: slot.startAt } },
+        { patientId, startAt: { gte: start, lt: end } },
+      ],
     },
+    select: { patientId: true, startAt: true, endAt: true },
   });
-  if (clash) throw errors.slotTaken();
-
-  // One active booking per patient per doctor per clinic day (FR-4.5).
-  const { start, end } = clinicDayRange(date);
-  const sameDay = await tx.appointment.findFirst({
-    where: { doctorId: doctor.id, patientId, status: 'BOOKED', startAt: { gte: start, lt: end } },
-  });
-  if (sameDay) throw errors.dailyLimit();
+  const overlaps = (a) => a.startAt < slot.endAt && a.endAt > slot.startAt;
+  if (conflicts.some(overlaps)) throw errors.slotTaken();
+  if (conflicts.some((a) => a.patientId === patientId)) throw errors.dailyLimit();
 
   return slot;
 }
@@ -125,7 +137,7 @@ const withDetails = (client, id) =>
 // FR-4.1, FR-4.7: book a slot (patient).
 export async function bookAppointment({ patientId, doctorId, startAt, now = new Date() }) {
   const created = await runInTransaction(async (tx) => {
-    await lockDoctor(tx, doctorId);
+    await lockDoctorDays(tx, doctorId, startAt);
     const doctor = await findBookableDoctor(tx, doctorId);
     const slot = await assertSlotBookable(tx, { doctor, patientId, startAt, now });
     return createBooking(tx, { doctor, patientId, slot });
@@ -133,11 +145,15 @@ export async function bookAppointment({ patientId, doctorId, startAt, now = new 
   return toAppointment(await withDetails(prisma, created.id));
 }
 
-// Loads an appointment inside a transaction, taking the doctor lock first.
-async function loadForChange(tx, id) {
-  const head = await tx.appointment.findUnique({ where: { id }, select: { doctorId: true } });
+// Loads an appointment inside a transaction, taking the doctor/day lock(s) first:
+// its own day, plus the target day of a reschedule.
+async function loadForChange(tx, id, newStartAt) {
+  const head = await tx.appointment.findUnique({
+    where: { id },
+    select: { doctorId: true, startAt: true },
+  });
   if (!head) throw errors.notFound();
-  await lockDoctor(tx, head.doctorId);
+  await lockDoctorDays(tx, head.doctorId, head.startAt, ...(newStartAt ? [newStartAt] : []));
   return tx.appointment.findUnique({ where: { id }, include: { doctor: true } });
 }
 
@@ -191,7 +207,7 @@ export async function cancelAppointment({ id, user, now = new Date() }) {
 // the old booking is cancelled only if the new one is created (same transaction).
 export async function rescheduleAppointment({ id, user, startAt, now = new Date() }) {
   const created = await runInTransaction(async (tx) => {
-    const appt = await loadForChange(tx, id);
+    const appt = await loadForChange(tx, id, startAt);
     if (appt.patientId !== user.userId) throw errors.forbidden();
     assertBooked(appt);
     assertBeforeCutoff(appt, now, 'reschedule');
