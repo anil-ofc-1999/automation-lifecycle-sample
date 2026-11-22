@@ -12,6 +12,26 @@ import { prisma } from '../src/db.js';
 // Override with SEED_PASSWORD in .env if you like.
 const SEED_PASSWORD = process.env.SEED_PASSWORD ?? 'Password123';
 
+// Safety: a database that is not on this machine (e.g. the live one on Render) is only
+// seeded with a real password — never the public default "Password123".
+const dbHost = new URL(process.env.DATABASE_URL ?? 'postgresql://localhost').hostname;
+const isLocal = ['localhost', '127.0.0.1', '::1'].includes(dbHost);
+if (!isLocal) {
+  const weak =
+    !process.env.SEED_PASSWORD ||
+    SEED_PASSWORD === 'Password123' ||
+    SEED_PASSWORD.length < 12 ||
+    !/[A-Za-z]/.test(SEED_PASSWORD) ||
+    !/[0-9]/.test(SEED_PASSWORD);
+  if (weak) {
+    console.error(
+      `Refusing to seed "${dbHost}": set SEED_PASSWORD to your own password ` +
+        '(at least 12 characters, with letters and numbers).',
+    );
+    process.exit(1);
+  }
+}
+
 const SPECIALIZATIONS = ['Cardiology', 'Dermatology', 'General Medicine'];
 
 const DOCTORS = [

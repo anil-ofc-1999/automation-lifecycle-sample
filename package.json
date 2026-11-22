@@ -28,7 +28,8 @@
     "db:seed": "node --env-file-if-exists=.env prisma/seed.js",
     "test:integration": "vitest run --config vitest.integration.config.js",
     "load": "node load/run.mjs",
-    "load:stress": "node load/run.mjs --stress"
+    "load:stress": "node load/run.mjs --stress",
+    "seed:live": "node scripts/seed-live.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
