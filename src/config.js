@@ -20,6 +20,8 @@ export const config = Object.freeze({
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '1h',
   // NFR-3: login attempts allowed per IP per minute.
   loginRateLimitPerMinute: toInt(process.env.LOGIN_RATE_LIMIT_PER_MINUTE, 5),
+  // All API requests allowed per IP per minute (D-34): stops one client flooding the API.
+  apiRateLimitPerMinute: toInt(process.env.API_RATE_LIMIT_PER_MINUTE, 300),
   // Registrations allowed per IP per minute (stops account spam; D-30).
   registerRateLimitPerMinute: toInt(process.env.REGISTER_RATE_LIMIT_PER_MINUTE, 10),
   // Number of proxies in front of the API (Render: 1). 0 = no proxy (local, default).
