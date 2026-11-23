@@ -28,6 +28,14 @@ export async function requireAuth(req, _res, next) {
     ? await prisma.user.findUnique({ where: { id: claims.userId } })
     : null;
   if (!user || !user.isActive) throw loginRequired();
+  // D-32: a password change signs out every session that started before it.
+  if (user.passwordChangedAt && claims.issuedAt < user.passwordChangedAt.getTime() / 1000) {
+    throw new AppError(
+      401,
+      'TOKEN_EXPIRED',
+      'Your password was changed. Please log in again with the new password.',
+    );
+  }
 
   req.user = { userId: user.id, role: user.role };
   req.currentUser = user;

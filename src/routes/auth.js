@@ -8,6 +8,7 @@ import { signAccessToken } from '../auth/tokens.js';
 import { config } from '../config.js';
 import { prisma, uniqueViolationIndex } from '../db.js';
 import { AppError, validate } from '../errors.js';
+import { requireAuth } from '../middleware/auth.js';
 import { toPublicUser } from './users.js';
 
 const registerSchema = z.object({
@@ -21,6 +22,16 @@ const loginSchema = z.object({
   email: z.string().trim().toLowerCase().min(1, 'Email is required.'),
   password: z.string().min(1, 'Password is required.'),
 });
+
+const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'Current password is required.'),
+    newPassword: passwordField,
+  })
+  .refine((d) => d.currentPassword !== d.newPassword, {
+    message: 'The new password must be different from the current one.',
+    path: ['newPassword'],
+  });
 
 // Same message for unknown email and wrong password (no user enumeration).
 const invalidCredentials = () =>
@@ -55,6 +66,21 @@ export function createAuthRouter() {
         error: {
           code: 'TOO_MANY_REQUESTS',
           message: 'Too many registrations from this network. Try again in a minute.',
+        },
+      }),
+  });
+
+  // D-32: guessing the current password is limited like login attempts.
+  const changePasswordLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    limit: config.loginRateLimitPerMinute,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+    handler: (_req, res) =>
+      res.status(429).json({
+        error: {
+          code: 'TOO_MANY_REQUESTS',
+          message: 'Too many password change attempts. Try again in a minute.',
         },
       }),
   });
@@ -105,6 +131,33 @@ export function createAuthRouter() {
       tokenType: 'Bearer',
       expiresIn: config.jwtExpiresIn,
       user: toPublicUser(user),
+    });
+  });
+
+  // D-32: a logged-in user (any role) changes their own password. Needs the current
+  // password; every older session is signed out, this one gets a fresh token.
+  router.post('/change-password', changePasswordLimiter, requireAuth, async (req, res) => {
+    const input = validate(changePasswordSchema, req.body);
+    const user = req.currentUser;
+
+    if (!(await verifyPassword(input.currentPassword, user.passwordHash))) {
+      throw new AppError(400, 'WRONG_PASSWORD', 'Your current password is incorrect.', [
+        { field: 'currentPassword', message: 'Current password is incorrect.' },
+      ]);
+    }
+
+    // Whole seconds, like the token's "iat": the new token below (same second) stays valid.
+    const changedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
+    const updated = await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash: await hashPassword(input.newPassword), passwordChangedAt: changedAt },
+    });
+
+    res.status(200).json({
+      accessToken: signAccessToken(updated),
+      tokenType: 'Bearer',
+      expiresIn: config.jwtExpiresIn,
+      user: toPublicUser(updated),
     });
   });
 

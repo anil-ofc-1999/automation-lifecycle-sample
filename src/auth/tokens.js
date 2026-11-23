@@ -11,8 +11,9 @@ export function signAccessToken(user) {
   });
 }
 
-// Returns { userId, role } or throws (expired / invalid signature / malformed).
+// Returns { userId, role, issuedAt } or throws (expired / invalid signature / malformed).
+// issuedAt is in whole seconds (the JWT "iat" claim).
 export function verifyAccessToken(token) {
   const payload = jwt.verify(token, config.jwtSecret, { algorithms: ['HS256'] });
-  return { userId: Number(payload.sub), role: payload.role };
+  return { userId: Number(payload.sub), role: payload.role, issuedAt: payload.iat };
 }
