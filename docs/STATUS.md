@@ -16,6 +16,7 @@ request (`develop → main`, "Create a merge commit").
 | 6   | Doctor dashboard (day view, completed / no-show, schedule, leave days) | Doctor  | ✅     |
 | 7   | Admin panel (appointments, doctors, specializations)                   | Admin   | ✅     |
 | —   | FR-7 emails to the patient: booked / cancelled / rescheduled (D-31)    | System  | ✅     |
+| —   | Change password, signs out other sessions (D-32)                       | Anyone  | ✅     |
 
 Every feature was finished end to end before the next one: API tests, web unit tests and
 Playwright E2E — positive **and** negative scenarios.
@@ -24,10 +25,10 @@ Playwright E2E — positive **and** negative scenarios.
 
 | Layer                         | Tool                   | Count       | Command (repo)                   |
 | ----------------------------- | ---------------------- | ----------- | -------------------------------- |
-| API unit                      | Vitest + Supertest     | 123         | `npm test` (API)                 |
-| API integration (real DB)     | Vitest, `itest` schema | 356         | `npm run test:integration` (API) |
-| Web unit                      | Vitest via `ng test`   | 492         | `npm test` (web)                 |
-| End-to-end (desktop + mobile) | Playwright             | 266 runs    | `npm run e2e` (web)              |
+| API unit                      | Vitest + Supertest     | 126         | `npm test` (API)                 |
+| API integration (real DB)     | Vitest, `itest` schema | 370         | `npm run test:integration` (API) |
+| Web unit                      | Vitest via `ng test`   | 512         | `npm test` (web)                 |
+| End-to-end (desktop + mobile) | Playwright             | 280 runs    | `npm run e2e` (web)              |
 | Load (NFR-1, NFR-2)           | k6                     | 2 scenarios | `npm run load` (API)             |
 
 - `npm run e2e:demo` (web) — watch the automation in Chrome, slowed down.
@@ -104,9 +105,9 @@ change the seed passwords afterwards.
 
 ## 7. Open items
 
-| Who  | Item                                                                                     |
-| ---- | ---------------------------------------------------------------------------------------- |
-| You  | Render: remove the temporary DB IP rule; rotate the DB credential; change seed passwords |
-| You  | Real emails: create an SMTP account, set `MAIL_MODE=smtp` + `SMTP_URL` on Render         |
-| You  | Free Render PostgreSQL expires 2026-12-22: upgrade or recreate before then               |
-| Open | UAT environment (O-3): a 2nd free Render database is not allowed on the free plan        |
+| Who  | Item                                                                                |
+| ---- | ----------------------------------------------------------------------------------- |
+| You  | Change the admin / sample account passwords on the live site (Change password page) |
+| You  | Real emails: create an SMTP account, set `MAIL_MODE=smtp` + `SMTP_URL` on Render    |
+| You  | Free Render PostgreSQL expires 2026-12-22: upgrade or recreate before then          |
+| Open | UAT environment (O-3): a 2nd free Render database is not allowed on the free plan   |

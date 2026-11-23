@@ -85,6 +85,40 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
+  /auth/change-password:
+    post:
+      tags: [Auth]
+      summary: Change own password (any role, D-32)
+      description: >-
+        Needs the current password; the new one follows FR-1.3 and must differ from it.
+        Every token issued before the change stops working; the response carries a fresh one.
+        Limited to 5 attempts per minute per IP.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword: { type: string }
+                newPassword: { type: string, minLength: 8, maxLength: 72 }
+      responses:
+        '200':
+          description: Password changed; a fresh token for this session
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken: { type: string }
+                  tokenType: { type: string, const: Bearer }
+                  expiresIn: { type: string, example: 1h }
+                  user: { $ref: '#/components/schemas/User' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
   /me:
     get:
       tags: [Auth]

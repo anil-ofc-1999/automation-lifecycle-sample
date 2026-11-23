@@ -375,8 +375,14 @@ describe('/me and tokens — negative scenarios (FR-1.7)', () => {
 });
 
 describe('token helpers (FR-1.5, FR-1.6)', () => {
-  it('round-trips user id and role', () => {
-    expect(verifyAccessToken(signAccessToken(patient))).toEqual({ userId: 7, role: 'PATIENT' });
+  it('round-trips user id and role, plus the issue time in whole seconds (D-32)', () => {
+    const nowSeconds = Math.floor(Date.now() / 1000);
+
+    const claims = verifyAccessToken(signAccessToken(patient));
+
+    expect(claims).toMatchObject({ userId: 7, role: 'PATIENT' });
+    expect(Number.isInteger(claims.issuedAt)).toBe(true);
+    expect(Math.abs(claims.issuedAt - nowSeconds)).toBeLessThanOrEqual(1);
   });
 
   it('rejects a token signed with HS512 (only HS256 allowed)', () => {
