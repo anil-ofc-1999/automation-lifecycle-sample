@@ -24,6 +24,7 @@ const env = {
   PORT: String(PORT),
   NODE_ENV: 'test', // quiet request logs
   LOGIN_RATE_LIMIT_PER_MINUTE: '100000',
+  API_RATE_LIMIT_PER_MINUTE: '1000000',
   REGISTER_RATE_LIMIT_PER_MINUTE: '100000',
 };
 

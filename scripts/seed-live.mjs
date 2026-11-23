@@ -17,7 +17,8 @@ try {
 } catch {
   host = '';
 }
-if (!host.endsWith('render.com')) {
+// Exact domain match: "evil-render.com" or "render.com.evil.io" must not pass (CodeQL).
+if (host !== 'render.com' && !host.endsWith('.render.com')) {
   console.error('\nThat is not the Render External Database URL (it must contain "render.com").');
   console.error('Copy it again from Render and run: npm run seed:live\n');
   rl.close();

@@ -138,6 +138,23 @@ GitHub Actions (`.github/workflows`) runs on every push to `develop` / `main` an
 `npm run check` + audit, a **gitleaks** secret scan of the whole history, **CodeQL**, and the
 full **Playwright E2E** suite (this API + the web app + a throw-away PostgreSQL).
 
+## Add many sample doctors (D-33)
+
+`scripts/data/doctors.json` holds 100 fake doctors in 17 specializations (`@example.com`
+emails only). The script adds whatever is missing **through the API as an admin**, so it
+works locally and on the live site without any database access:
+
+```bash
+npm run doctors:add -- --dry-run   # only shows what would be added
+npm run doctors:add                # adds it
+```
+
+It asks for the API (Enter = local, or type `live`), the admin email and password, and a
+password for the new doctor accounts (typed hidden, never saved). Nothing is duplicated:
+specializations are matched by name ignoring case, doctors by email, and running it again
+adds nothing. Inactive specializations are left alone. Each new doctor gets the weekly
+hours named in the file. Edit the JSON (or pass `--file other.json`) to add your own.
+
 ## Emails (FR-7)
 
 The patient gets an email after booking, cancelling (by them or the clinic) and
@@ -188,5 +205,6 @@ Never commit real secrets. Copy `.env.example` to `.env` and fill in local value
 | 2026-11-22 | `npm audit --omit=dev`: 3 high (ReDoS in `effect` ≤ 3.22.0) via the Prisma CLI    | Fixed: `overrides.effect = 3.22.5` (same major version; Prisma generate / migrate verified). Remove the override once Prisma ships a fixed `effect`. Audit now 0.                          |
 | 2026-11-22 | Registration had no rate limit (bulk account creation)                            | Fixed: 10 per minute per IP (`REGISTER_RATE_LIMIT_PER_MINUTE`), D-30.                                                                                                                      |
 | 2026-11-22 | Behind a hosting proxy all users would share one IP for rate limits               | Fixed: `TRUST_PROXY_HOPS` (set `1` on Render, `0` locally so `X-Forwarded-For` cannot be faked), D-30.                                                                                     |
+| 2026-11-23 | CodeQL: API routes without a rate limit; loose `render.com` host check            | Fixed: 300 requests/min/IP on all API routes, exact host match in `seed:live` (D-34).                                                                                                      |
 | 2026-11-22 | Secret scan of the full git history (both repos)                                  | Clean: `.env` never committed, only `CHANGE_ME` placeholders and test-only values. Dependabot added (weekly, both repos). 2026-11-23: gitleaks + CodeQL now run in CI.                     |
 | 2026-11-18 | GitHub Free does not enforce rulesets on **private** repos                        | Repo made public (no secrets / personal data in code). Same plan-dependency exists in Bitbucket ("Enforce merge checks" needs Premium) — check the plan before rolling out at the company. |

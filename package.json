@@ -29,7 +29,8 @@
     "test:integration": "vitest run --config vitest.integration.config.js",
     "load": "node load/run.mjs",
     "load:stress": "node load/run.mjs --stress",
-    "seed:live": "node scripts/seed-live.mjs"
+    "seed:live": "node scripts/seed-live.mjs",
+    "doctors:add": "node scripts/add-doctors.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",

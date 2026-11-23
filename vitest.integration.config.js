@@ -34,6 +34,7 @@ export default defineConfig({
       JWT_SECRET: 'test-only-jwt-secret-at-least-32-characters',
       JWT_EXPIRES_IN: '1h',
       LOGIN_RATE_LIMIT_PER_MINUTE: '1000',
+      API_RATE_LIMIT_PER_MINUTE: '100000',
       REGISTER_RATE_LIMIT_PER_MINUTE: '1000',
     },
   },

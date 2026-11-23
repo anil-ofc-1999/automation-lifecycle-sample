@@ -1,0 +1,1126 @@
+{
+  "_note": "Sample data only (REQUIREMENTS §11, NFR-5): fake names, @example.com emails. Used by npm run doctors:add.",
+  "specializations": [
+    "Cardiology",
+    "Dermatology",
+    "General Medicine",
+    "Pediatrics",
+    "Orthopedics",
+    "Neurology",
+    "Gynecology",
+    "ENT",
+    "Ophthalmology",
+    "Psychiatry",
+    "Dentistry",
+    "Gastroenterology",
+    "Pulmonology",
+    "Endocrinology",
+    "Urology",
+    "Nephrology",
+    "Oncology"
+  ],
+  "schedules": {
+    "mon-sat-split": [
+      {
+        "dayOfWeek": 1,
+        "startTime": "10:00",
+        "endTime": "13:00"
+      },
+      {
+        "dayOfWeek": 1,
+        "startTime": "16:00",
+        "endTime": "19:00"
+      },
+      {
+        "dayOfWeek": 2,
+        "startTime": "10:00",
+        "endTime": "13:00"
+      },
+      {
+        "dayOfWeek": 2,
+        "startTime": "16:00",
+        "endTime": "19:00"
+      },
+      {
+        "dayOfWeek": 3,
+        "startTime": "10:00",
+        "endTime": "13:00"
+      },
+      {
+        "dayOfWeek": 3,
+        "startTime": "16:00",
+        "endTime": "19:00"
+      },
+      {
+        "dayOfWeek": 4,
+        "startTime": "10:00",
+        "endTime": "13:00"
+      },
+      {
+        "dayOfWeek": 4,
+        "startTime": "16:00",
+        "endTime": "19:00"
+      },
+      {
+        "dayOfWeek": 5,
+        "startTime": "10:00",
+        "endTime": "13:00"
+      },
+      {
+        "dayOfWeek": 5,
+        "startTime": "16:00",
+        "endTime": "19:00"
+      },
+      {
+        "dayOfWeek": 6,
+        "startTime": "10:00",
+        "endTime": "13:00"
+      },
+      {
+        "dayOfWeek": 6,
+        "startTime": "16:00",
+        "endTime": "19:00"
+      }
+    ],
+    "mon-fri-day": [
+      {
+        "dayOfWeek": 1,
+        "startTime": "09:00",
+        "endTime": "13:00"
+      },
+      {
+        "dayOfWeek": 1,
+        "startTime": "14:00",
+        "endTime": "17:00"
+      },
+      {
+        "dayOfWeek": 2,
+        "startTime": "09:00",
+        "endTime": "13:00"
+      },
+      {
+        "dayOfWeek": 2,
+        "startTime": "14:00",
+        "endTime": "17:00"
+      },
+      {
+        "dayOfWeek": 3,
+        "startTime": "09:00",
+        "endTime": "13:00"
+      },
+      {
+        "dayOfWeek": 3,
+        "startTime": "14:00",
+        "endTime": "17:00"
+      },
+      {
+        "dayOfWeek": 4,
+        "startTime": "09:00",
+        "endTime": "13:00"
+      },
+      {
+        "dayOfWeek": 4,
+        "startTime": "14:00",
+        "endTime": "17:00"
+      },
+      {
+        "dayOfWeek": 5,
+        "startTime": "09:00",
+        "endTime": "13:00"
+      },
+      {
+        "dayOfWeek": 5,
+        "startTime": "14:00",
+        "endTime": "17:00"
+      }
+    ],
+    "alt-days": [
+      {
+        "dayOfWeek": 1,
+        "startTime": "09:30",
+        "endTime": "14:30"
+      },
+      {
+        "dayOfWeek": 3,
+        "startTime": "09:30",
+        "endTime": "14:30"
+      },
+      {
+        "dayOfWeek": 5,
+        "startTime": "09:30",
+        "endTime": "14:30"
+      },
+      {
+        "dayOfWeek": 6,
+        "startTime": "10:00",
+        "endTime": "13:00"
+      }
+    ],
+    "evenings": [
+      {
+        "dayOfWeek": 1,
+        "startTime": "17:00",
+        "endTime": "21:00"
+      },
+      {
+        "dayOfWeek": 2,
+        "startTime": "17:00",
+        "endTime": "21:00"
+      },
+      {
+        "dayOfWeek": 3,
+        "startTime": "17:00",
+        "endTime": "21:00"
+      },
+      {
+        "dayOfWeek": 4,
+        "startTime": "17:00",
+        "endTime": "21:00"
+      },
+      {
+        "dayOfWeek": 5,
+        "startTime": "17:00",
+        "endTime": "21:00"
+      },
+      {
+        "dayOfWeek": 6,
+        "startTime": "17:00",
+        "endTime": "21:00"
+      }
+    ],
+    "tue-thu-sat": [
+      {
+        "dayOfWeek": 2,
+        "startTime": "09:00",
+        "endTime": "12:00"
+      },
+      {
+        "dayOfWeek": 2,
+        "startTime": "15:00",
+        "endTime": "18:00"
+      },
+      {
+        "dayOfWeek": 4,
+        "startTime": "09:00",
+        "endTime": "12:00"
+      },
+      {
+        "dayOfWeek": 4,
+        "startTime": "15:00",
+        "endTime": "18:00"
+      },
+      {
+        "dayOfWeek": 6,
+        "startTime": "09:00",
+        "endTime": "12:00"
+      },
+      {
+        "dayOfWeek": 6,
+        "startTime": "15:00",
+        "endTime": "18:00"
+      }
+    ]
+  },
+  "doctors": [
+    {
+      "name": "Dr. Aarav Agarwal",
+      "email": "aarav.agarwal@example.com",
+      "specialization": "Cardiology",
+      "fee": 700,
+      "slotMinutes": 30,
+      "schedule": "mon-sat-split",
+      "bio": "Cardiology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Aditi Jain",
+      "email": "aditi.jain@example.com",
+      "specialization": "Dermatology",
+      "fee": 600,
+      "slotMinutes": 15,
+      "schedule": "mon-fri-day",
+      "bio": "Dermatology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Akash Pillai",
+      "email": "akash.pillai@example.com",
+      "specialization": "General Medicine",
+      "fee": 350,
+      "slotMinutes": 15,
+      "schedule": "alt-days",
+      "bio": "General Medicine specialist (sample data)."
+    },
+    {
+      "name": "Dr. Ananya Bose",
+      "email": "ananya.bose@example.com",
+      "specialization": "Pediatrics",
+      "fee": 700,
+      "slotMinutes": 15,
+      "schedule": "evenings",
+      "bio": "Pediatrics specialist (sample data)."
+    },
+    {
+      "name": "Dr. Anil Desai",
+      "email": "anil.desai@example.com",
+      "specialization": "Orthopedics",
+      "fee": 1050,
+      "slotMinutes": 30,
+      "schedule": "tue-thu-sat",
+      "bio": "Orthopedics specialist (sample data)."
+    },
+    {
+      "name": "Dr. Anjali Mehta",
+      "email": "anjali.mehta@example.com",
+      "specialization": "Neurology",
+      "fee": 1250,
+      "slotMinutes": 30,
+      "schedule": "mon-sat-split",
+      "bio": "Neurology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Arun Sen",
+      "email": "arun.sen@example.com",
+      "specialization": "Gynecology",
+      "fee": 900,
+      "slotMinutes": 30,
+      "schedule": "mon-fri-day",
+      "bio": "Gynecology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Bhavana Malhotra",
+      "email": "bhavana.malhotra@example.com",
+      "specialization": "ENT",
+      "fee": 650,
+      "slotMinutes": 15,
+      "schedule": "alt-days",
+      "bio": "ENT specialist (sample data)."
+    },
+    {
+      "name": "Dr. Chetan Hegde",
+      "email": "chetan.hegde@example.com",
+      "specialization": "Ophthalmology",
+      "fee": 750,
+      "slotMinutes": 15,
+      "schedule": "evenings",
+      "bio": "Ophthalmology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Deepa Pandey",
+      "email": "deepa.pandey@example.com",
+      "specialization": "Psychiatry",
+      "fee": 1450,
+      "slotMinutes": 30,
+      "schedule": "tue-thu-sat",
+      "bio": "Psychiatry specialist (sample data)."
+    },
+    {
+      "name": "Dr. Dinesh Yadav",
+      "email": "dinesh.yadav@example.com",
+      "specialization": "Dentistry",
+      "fee": 400,
+      "slotMinutes": 30,
+      "schedule": "mon-sat-split",
+      "bio": "Dentistry specialist (sample data)."
+    },
+    {
+      "name": "Dr. Gauri Chatterjee",
+      "email": "gauri.chatterjee@example.com",
+      "specialization": "Gastroenterology",
+      "fee": 700,
+      "slotMinutes": 30,
+      "schedule": "mon-fri-day",
+      "bio": "Gastroenterology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Harish Kulkarni",
+      "email": "harish.kulkarni@example.com",
+      "specialization": "Pulmonology",
+      "fee": 850,
+      "slotMinutes": 30,
+      "schedule": "alt-days",
+      "bio": "Pulmonology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Ishita Saxena",
+      "email": "ishita.saxena@example.com",
+      "specialization": "Endocrinology",
+      "fee": 1200,
+      "slotMinutes": 30,
+      "schedule": "evenings",
+      "bio": "Endocrinology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Jayesh Dutta",
+      "email": "jayesh.dutta@example.com",
+      "specialization": "Urology",
+      "fee": 800,
+      "slotMinutes": 30,
+      "schedule": "tue-thu-sat",
+      "bio": "Urology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Kavita Ghosh",
+      "email": "kavita.ghosh@example.com",
+      "specialization": "Nephrology",
+      "fee": 750,
+      "slotMinutes": 30,
+      "schedule": "mon-sat-split",
+      "bio": "Nephrology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Lalit Naidu",
+      "email": "lalit.naidu@example.com",
+      "specialization": "Oncology",
+      "fee": 1800,
+      "slotMinutes": 30,
+      "schedule": "mon-fri-day",
+      "bio": "Oncology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Madhu Varma",
+      "email": "madhu.varma@example.com",
+      "specialization": "Cardiology",
+      "fee": 1100,
+      "slotMinutes": 30,
+      "schedule": "alt-days",
+      "bio": "Cardiology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Manoj Bhat",
+      "email": "manoj.bhat@example.com",
+      "specialization": "Dermatology",
+      "fee": 500,
+      "slotMinutes": 15,
+      "schedule": "evenings",
+      "bio": "Dermatology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Nandini Kapoor",
+      "email": "nandini.kapoor@example.com",
+      "specialization": "General Medicine",
+      "fee": 600,
+      "slotMinutes": 15,
+      "schedule": "tue-thu-sat",
+      "bio": "General Medicine specialist (sample data)."
+    },
+    {
+      "name": "Dr. Nikhil Reddy",
+      "email": "nikhil.reddy@example.com",
+      "specialization": "Pediatrics",
+      "fee": 600,
+      "slotMinutes": 15,
+      "schedule": "mon-sat-split",
+      "bio": "Pediatrics specialist (sample data)."
+    },
+    {
+      "name": "Dr. Pallavi Chauhan",
+      "email": "pallavi.chauhan@example.com",
+      "specialization": "Orthopedics",
+      "fee": 900,
+      "slotMinutes": 30,
+      "schedule": "mon-fri-day",
+      "bio": "Orthopedics specialist (sample data)."
+    },
+    {
+      "name": "Dr. Pradeep Fernandes",
+      "email": "pradeep.fernandes@example.com",
+      "specialization": "Neurology",
+      "fee": 1350,
+      "slotMinutes": 30,
+      "schedule": "alt-days",
+      "bio": "Neurology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Radhika Mishra",
+      "email": "radhika.mishra@example.com",
+      "specialization": "Gynecology",
+      "fee": 750,
+      "slotMinutes": 30,
+      "schedule": "evenings",
+      "bio": "Gynecology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Rajesh Thakur",
+      "email": "rajesh.thakur@example.com",
+      "specialization": "ENT",
+      "fee": 550,
+      "slotMinutes": 15,
+      "schedule": "tue-thu-sat",
+      "bio": "ENT specialist (sample data)."
+    },
+    {
+      "name": "Dr. Rekha Agarwal",
+      "email": "rekha.agarwal@example.com",
+      "specialization": "Ophthalmology",
+      "fee": 600,
+      "slotMinutes": 15,
+      "schedule": "mon-sat-split",
+      "bio": "Ophthalmology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Rohan Jain",
+      "email": "rohan.jain@example.com",
+      "specialization": "Psychiatry",
+      "fee": 900,
+      "slotMinutes": 30,
+      "schedule": "mon-fri-day",
+      "bio": "Psychiatry specialist (sample data)."
+    },
+    {
+      "name": "Dr. Sangeeta Pillai",
+      "email": "sangeeta.pillai@example.com",
+      "specialization": "Dentistry",
+      "fee": 300,
+      "slotMinutes": 30,
+      "schedule": "alt-days",
+      "bio": "Dentistry specialist (sample data)."
+    },
+    {
+      "name": "Dr. Sanjay Bose",
+      "email": "sanjay.bose@example.com",
+      "specialization": "Gastroenterology",
+      "fee": 1100,
+      "slotMinutes": 30,
+      "schedule": "evenings",
+      "bio": "Gastroenterology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Shalini Desai",
+      "email": "shalini.desai@example.com",
+      "specialization": "Pulmonology",
+      "fee": 700,
+      "slotMinutes": 30,
+      "schedule": "tue-thu-sat",
+      "bio": "Pulmonology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Siddharth Mehta",
+      "email": "siddharth.mehta@example.com",
+      "specialization": "Endocrinology",
+      "fee": 1050,
+      "slotMinutes": 30,
+      "schedule": "mon-sat-split",
+      "bio": "Endocrinology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Sunita Sen",
+      "email": "sunita.sen@example.com",
+      "specialization": "Urology",
+      "fee": 650,
+      "slotMinutes": 30,
+      "schedule": "mon-fri-day",
+      "bio": "Urology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Tarun Malhotra",
+      "email": "tarun.malhotra@example.com",
+      "specialization": "Nephrology",
+      "fee": 850,
+      "slotMinutes": 30,
+      "schedule": "alt-days",
+      "bio": "Nephrology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Uma Hegde",
+      "email": "uma.hegde@example.com",
+      "specialization": "Oncology",
+      "fee": 1800,
+      "slotMinutes": 30,
+      "schedule": "evenings",
+      "bio": "Oncology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Varun Pandey",
+      "email": "varun.pandey@example.com",
+      "specialization": "Cardiology",
+      "fee": 950,
+      "slotMinutes": 30,
+      "schedule": "tue-thu-sat",
+      "bio": "Cardiology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Vidya Yadav",
+      "email": "vidya.yadav@example.com",
+      "specialization": "Dermatology",
+      "fee": 850,
+      "slotMinutes": 15,
+      "schedule": "mon-sat-split",
+      "bio": "Dermatology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Vinod Chatterjee",
+      "email": "vinod.chatterjee@example.com",
+      "specialization": "General Medicine",
+      "fee": 500,
+      "slotMinutes": 15,
+      "schedule": "mon-fri-day",
+      "bio": "General Medicine specialist (sample data)."
+    },
+    {
+      "name": "Dr. Yamini Kulkarni",
+      "email": "yamini.kulkarni@example.com",
+      "specialization": "Pediatrics",
+      "fee": 500,
+      "slotMinutes": 15,
+      "schedule": "alt-days",
+      "bio": "Pediatrics specialist (sample data)."
+    },
+    {
+      "name": "Dr. Zoya Saxena",
+      "email": "zoya.saxena@example.com",
+      "specialization": "Orthopedics",
+      "fee": 750,
+      "slotMinutes": 30,
+      "schedule": "evenings",
+      "bio": "Orthopedics specialist (sample data)."
+    },
+    {
+      "name": "Dr. Farhan Dutta",
+      "email": "farhan.dutta@example.com",
+      "specialization": "Neurology",
+      "fee": 800,
+      "slotMinutes": 30,
+      "schedule": "tue-thu-sat",
+      "bio": "Neurology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Aarav Hegde",
+      "email": "aarav.hegde@example.com",
+      "specialization": "Gynecology",
+      "fee": 600,
+      "slotMinutes": 30,
+      "schedule": "mon-sat-split",
+      "bio": "Gynecology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Aditi Pandey",
+      "email": "aditi.pandey@example.com",
+      "specialization": "ENT",
+      "fee": 450,
+      "slotMinutes": 15,
+      "schedule": "mon-fri-day",
+      "bio": "ENT specialist (sample data)."
+    },
+    {
+      "name": "Dr. Akash Yadav",
+      "email": "akash.yadav@example.com",
+      "specialization": "Ophthalmology",
+      "fee": 450,
+      "slotMinutes": 15,
+      "schedule": "alt-days",
+      "bio": "Ophthalmology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Ananya Chatterjee",
+      "email": "ananya.chatterjee@example.com",
+      "specialization": "Psychiatry",
+      "fee": 1000,
+      "slotMinutes": 30,
+      "schedule": "evenings",
+      "bio": "Psychiatry specialist (sample data)."
+    },
+    {
+      "name": "Dr. Anil Kulkarni",
+      "email": "anil.kulkarni@example.com",
+      "specialization": "Dentistry",
+      "fee": 650,
+      "slotMinutes": 30,
+      "schedule": "tue-thu-sat",
+      "bio": "Dentistry specialist (sample data)."
+    },
+    {
+      "name": "Dr. Anjali Saxena",
+      "email": "anjali.saxena@example.com",
+      "specialization": "Gastroenterology",
+      "fee": 950,
+      "slotMinutes": 30,
+      "schedule": "mon-sat-split",
+      "bio": "Gastroenterology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Arun Dutta",
+      "email": "arun.dutta@example.com",
+      "specialization": "Pulmonology",
+      "fee": 1100,
+      "slotMinutes": 30,
+      "schedule": "mon-fri-day",
+      "bio": "Pulmonology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Bhavana Ghosh",
+      "email": "bhavana.ghosh@example.com",
+      "specialization": "Endocrinology",
+      "fee": 900,
+      "slotMinutes": 30,
+      "schedule": "alt-days",
+      "bio": "Endocrinology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Chetan Naidu",
+      "email": "chetan.naidu@example.com",
+      "specialization": "Urology",
+      "fee": 1050,
+      "slotMinutes": 30,
+      "schedule": "evenings",
+      "bio": "Urology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Deepa Varma",
+      "email": "deepa.varma@example.com",
+      "specialization": "Nephrology",
+      "fee": 950,
+      "slotMinutes": 30,
+      "schedule": "tue-thu-sat",
+      "bio": "Nephrology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Dinesh Bhat",
+      "email": "dinesh.bhat@example.com",
+      "specialization": "Oncology",
+      "fee": 1800,
+      "slotMinutes": 30,
+      "schedule": "mon-sat-split",
+      "bio": "Oncology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Gauri Kapoor",
+      "email": "gauri.kapoor@example.com",
+      "specialization": "Cardiology",
+      "fee": 800,
+      "slotMinutes": 30,
+      "schedule": "mon-fri-day",
+      "bio": "Cardiology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Harish Reddy",
+      "email": "harish.reddy@example.com",
+      "specialization": "Dermatology",
+      "fee": 750,
+      "slotMinutes": 15,
+      "schedule": "alt-days",
+      "bio": "Dermatology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Ishita Chauhan",
+      "email": "ishita.chauhan@example.com",
+      "specialization": "General Medicine",
+      "fee": 400,
+      "slotMinutes": 15,
+      "schedule": "evenings",
+      "bio": "General Medicine specialist (sample data)."
+    },
+    {
+      "name": "Dr. Jayesh Fernandes",
+      "email": "jayesh.fernandes@example.com",
+      "specialization": "Pediatrics",
+      "fee": 400,
+      "slotMinutes": 15,
+      "schedule": "tue-thu-sat",
+      "bio": "Pediatrics specialist (sample data)."
+    },
+    {
+      "name": "Dr. Kavita Mishra",
+      "email": "kavita.mishra@example.com",
+      "specialization": "Orthopedics",
+      "fee": 600,
+      "slotMinutes": 30,
+      "schedule": "mon-sat-split",
+      "bio": "Orthopedics specialist (sample data)."
+    },
+    {
+      "name": "Dr. Lalit Thakur",
+      "email": "lalit.thakur@example.com",
+      "specialization": "Neurology",
+      "fee": 900,
+      "slotMinutes": 30,
+      "schedule": "mon-fri-day",
+      "bio": "Neurology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Madhu Agarwal",
+      "email": "madhu.agarwal@example.com",
+      "specialization": "Gynecology",
+      "fee": 1000,
+      "slotMinutes": 30,
+      "schedule": "alt-days",
+      "bio": "Gynecology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Manoj Jain",
+      "email": "manoj.jain@example.com",
+      "specialization": "ENT",
+      "fee": 800,
+      "slotMinutes": 15,
+      "schedule": "evenings",
+      "bio": "ENT specialist (sample data)."
+    },
+    {
+      "name": "Dr. Nandini Pillai",
+      "email": "nandini.pillai@example.com",
+      "specialization": "Ophthalmology",
+      "fee": 850,
+      "slotMinutes": 15,
+      "schedule": "tue-thu-sat",
+      "bio": "Ophthalmology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Nikhil Bose",
+      "email": "nikhil.bose@example.com",
+      "specialization": "Psychiatry",
+      "fee": 1100,
+      "slotMinutes": 30,
+      "schedule": "mon-sat-split",
+      "bio": "Psychiatry specialist (sample data)."
+    },
+    {
+      "name": "Dr. Pallavi Desai",
+      "email": "pallavi.desai@example.com",
+      "specialization": "Dentistry",
+      "fee": 550,
+      "slotMinutes": 30,
+      "schedule": "mon-fri-day",
+      "bio": "Dentistry specialist (sample data)."
+    },
+    {
+      "name": "Dr. Pradeep Mehta",
+      "email": "pradeep.mehta@example.com",
+      "specialization": "Gastroenterology",
+      "fee": 800,
+      "slotMinutes": 30,
+      "schedule": "alt-days",
+      "bio": "Gastroenterology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Radhika Sen",
+      "email": "radhika.sen@example.com",
+      "specialization": "Pulmonology",
+      "fee": 950,
+      "slotMinutes": 30,
+      "schedule": "evenings",
+      "bio": "Pulmonology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Rajesh Malhotra",
+      "email": "rajesh.malhotra@example.com",
+      "specialization": "Endocrinology",
+      "fee": 750,
+      "slotMinutes": 30,
+      "schedule": "tue-thu-sat",
+      "bio": "Endocrinology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Rekha Hegde",
+      "email": "rekha.hegde@example.com",
+      "specialization": "Urology",
+      "fee": 900,
+      "slotMinutes": 30,
+      "schedule": "mon-sat-split",
+      "bio": "Urology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Rohan Pandey",
+      "email": "rohan.pandey@example.com",
+      "specialization": "Nephrology",
+      "fee": 1050,
+      "slotMinutes": 30,
+      "schedule": "mon-fri-day",
+      "bio": "Nephrology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Sangeeta Yadav",
+      "email": "sangeeta.yadav@example.com",
+      "specialization": "Oncology",
+      "fee": 1800,
+      "slotMinutes": 30,
+      "schedule": "alt-days",
+      "bio": "Oncology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Sanjay Chatterjee",
+      "email": "sanjay.chatterjee@example.com",
+      "specialization": "Cardiology",
+      "fee": 1200,
+      "slotMinutes": 30,
+      "schedule": "evenings",
+      "bio": "Cardiology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Shalini Kulkarni",
+      "email": "shalini.kulkarni@example.com",
+      "specialization": "Dermatology",
+      "fee": 650,
+      "slotMinutes": 15,
+      "schedule": "tue-thu-sat",
+      "bio": "Dermatology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Siddharth Saxena",
+      "email": "siddharth.saxena@example.com",
+      "specialization": "General Medicine",
+      "fee": 300,
+      "slotMinutes": 15,
+      "schedule": "mon-sat-split",
+      "bio": "General Medicine specialist (sample data)."
+    },
+    {
+      "name": "Dr. Sunita Dutta",
+      "email": "sunita.dutta@example.com",
+      "specialization": "Pediatrics",
+      "fee": 750,
+      "slotMinutes": 15,
+      "schedule": "mon-fri-day",
+      "bio": "Pediatrics specialist (sample data)."
+    },
+    {
+      "name": "Dr. Tarun Ghosh",
+      "email": "tarun.ghosh@example.com",
+      "specialization": "Orthopedics",
+      "fee": 1000,
+      "slotMinutes": 30,
+      "schedule": "alt-days",
+      "bio": "Orthopedics specialist (sample data)."
+    },
+    {
+      "name": "Dr. Uma Naidu",
+      "email": "uma.naidu@example.com",
+      "specialization": "Neurology",
+      "fee": 1000,
+      "slotMinutes": 30,
+      "schedule": "evenings",
+      "bio": "Neurology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Varun Varma",
+      "email": "varun.varma@example.com",
+      "specialization": "Gynecology",
+      "fee": 850,
+      "slotMinutes": 30,
+      "schedule": "tue-thu-sat",
+      "bio": "Gynecology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Vidya Bhat",
+      "email": "vidya.bhat@example.com",
+      "specialization": "ENT",
+      "fee": 700,
+      "slotMinutes": 15,
+      "schedule": "mon-sat-split",
+      "bio": "ENT specialist (sample data)."
+    },
+    {
+      "name": "Dr. Vinod Kapoor",
+      "email": "vinod.kapoor@example.com",
+      "specialization": "Ophthalmology",
+      "fee": 700,
+      "slotMinutes": 15,
+      "schedule": "mon-fri-day",
+      "bio": "Ophthalmology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Yamini Reddy",
+      "email": "yamini.reddy@example.com",
+      "specialization": "Psychiatry",
+      "fee": 1200,
+      "slotMinutes": 30,
+      "schedule": "alt-days",
+      "bio": "Psychiatry specialist (sample data)."
+    },
+    {
+      "name": "Dr. Zoya Chauhan",
+      "email": "zoya.chauhan@example.com",
+      "specialization": "Dentistry",
+      "fee": 450,
+      "slotMinutes": 30,
+      "schedule": "evenings",
+      "bio": "Dentistry specialist (sample data)."
+    },
+    {
+      "name": "Dr. Farhan Fernandes",
+      "email": "farhan.fernandes@example.com",
+      "specialization": "Gastroenterology",
+      "fee": 1200,
+      "slotMinutes": 30,
+      "schedule": "tue-thu-sat",
+      "bio": "Gastroenterology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Aarav Naidu",
+      "email": "aarav.naidu@example.com",
+      "specialization": "Pulmonology",
+      "fee": 800,
+      "slotMinutes": 30,
+      "schedule": "mon-sat-split",
+      "bio": "Pulmonology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Aditi Varma",
+      "email": "aditi.varma@example.com",
+      "specialization": "Endocrinology",
+      "fee": 1150,
+      "slotMinutes": 30,
+      "schedule": "mon-fri-day",
+      "bio": "Endocrinology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Akash Bhat",
+      "email": "akash.bhat@example.com",
+      "specialization": "Urology",
+      "fee": 750,
+      "slotMinutes": 30,
+      "schedule": "alt-days",
+      "bio": "Urology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Ananya Kapoor",
+      "email": "ananya.kapoor@example.com",
+      "specialization": "Nephrology",
+      "fee": 1150,
+      "slotMinutes": 30,
+      "schedule": "evenings",
+      "bio": "Nephrology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Anil Reddy",
+      "email": "anil.reddy@example.com",
+      "specialization": "Oncology",
+      "fee": 1800,
+      "slotMinutes": 30,
+      "schedule": "tue-thu-sat",
+      "bio": "Oncology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Anjali Chauhan",
+      "email": "anjali.chauhan@example.com",
+      "specialization": "Cardiology",
+      "fee": 1050,
+      "slotMinutes": 30,
+      "schedule": "mon-sat-split",
+      "bio": "Cardiology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Arun Fernandes",
+      "email": "arun.fernandes@example.com",
+      "specialization": "Dermatology",
+      "fee": 550,
+      "slotMinutes": 15,
+      "schedule": "mon-fri-day",
+      "bio": "Dermatology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Bhavana Mishra",
+      "email": "bhavana.mishra@example.com",
+      "specialization": "General Medicine",
+      "fee": 550,
+      "slotMinutes": 15,
+      "schedule": "alt-days",
+      "bio": "General Medicine specialist (sample data)."
+    },
+    {
+      "name": "Dr. Chetan Thakur",
+      "email": "chetan.thakur@example.com",
+      "specialization": "Pediatrics",
+      "fee": 650,
+      "slotMinutes": 15,
+      "schedule": "evenings",
+      "bio": "Pediatrics specialist (sample data)."
+    },
+    {
+      "name": "Dr. Deepa Agarwal",
+      "email": "deepa.agarwal@example.com",
+      "specialization": "Orthopedics",
+      "fee": 850,
+      "slotMinutes": 30,
+      "schedule": "tue-thu-sat",
+      "bio": "Orthopedics specialist (sample data)."
+    },
+    {
+      "name": "Dr. Dinesh Jain",
+      "email": "dinesh.jain@example.com",
+      "specialization": "Neurology",
+      "fee": 1100,
+      "slotMinutes": 30,
+      "schedule": "mon-sat-split",
+      "bio": "Neurology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Gauri Pillai",
+      "email": "gauri.pillai@example.com",
+      "specialization": "Gynecology",
+      "fee": 700,
+      "slotMinutes": 30,
+      "schedule": "mon-fri-day",
+      "bio": "Gynecology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Harish Bose",
+      "email": "harish.bose@example.com",
+      "specialization": "ENT",
+      "fee": 600,
+      "slotMinutes": 15,
+      "schedule": "alt-days",
+      "bio": "ENT specialist (sample data)."
+    },
+    {
+      "name": "Dr. Ishita Desai",
+      "email": "ishita.desai@example.com",
+      "specialization": "Ophthalmology",
+      "fee": 550,
+      "slotMinutes": 15,
+      "schedule": "evenings",
+      "bio": "Ophthalmology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Jayesh Mehta",
+      "email": "jayesh.mehta@example.com",
+      "specialization": "Psychiatry",
+      "fee": 1300,
+      "slotMinutes": 30,
+      "schedule": "tue-thu-sat",
+      "bio": "Psychiatry specialist (sample data)."
+    },
+    {
+      "name": "Dr. Kavita Sen",
+      "email": "kavita.sen@example.com",
+      "specialization": "Dentistry",
+      "fee": 350,
+      "slotMinutes": 30,
+      "schedule": "mon-sat-split",
+      "bio": "Dentistry specialist (sample data)."
+    },
+    {
+      "name": "Dr. Lalit Malhotra",
+      "email": "lalit.malhotra@example.com",
+      "specialization": "Gastroenterology",
+      "fee": 1050,
+      "slotMinutes": 30,
+      "schedule": "mon-fri-day",
+      "bio": "Gastroenterology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Madhu Hegde",
+      "email": "madhu.hegde@example.com",
+      "specialization": "Pulmonology",
+      "fee": 650,
+      "slotMinutes": 30,
+      "schedule": "alt-days",
+      "bio": "Pulmonology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Manoj Pandey",
+      "email": "manoj.pandey@example.com",
+      "specialization": "Endocrinology",
+      "fee": 1000,
+      "slotMinutes": 30,
+      "schedule": "evenings",
+      "bio": "Endocrinology specialist (sample data)."
+    },
+    {
+      "name": "Dr. Nandini Yadav",
+      "email": "nandini.yadav@example.com",
+      "specialization": "Urology",
+      "fee": 600,
+      "slotMinutes": 30,
+      "schedule": "tue-thu-sat",
+      "bio": "Urology specialist (sample data)."
+    }
+  ]
+}

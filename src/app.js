@@ -1,4 +1,5 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 
 import { config } from './config.js';
@@ -28,6 +29,23 @@ export function createApp() {
 
   // Feature routes (docs/REQUIREMENTS.md §7, docs/openapi.yaml)
   const api = express.Router();
+  // D-34: overall per-IP limit for every API route (login / register / change-password
+  // have stricter ones of their own). Created per app so tests stay independent.
+  api.use(
+    rateLimit({
+      windowMs: 60 * 1000,
+      limit: config.apiRateLimitPerMinute,
+      standardHeaders: 'draft-8',
+      legacyHeaders: false,
+      handler: (_req, res) =>
+        res.status(429).json({
+          error: {
+            code: 'TOO_MANY_REQUESTS',
+            message: 'Too many requests. Please wait a minute and try again.',
+          },
+        }),
+    }),
+  );
   api.use('/auth', createAuthRouter());
   api.use('/me', meRouter);
   api.use('/specializations', specializationsRouter);
