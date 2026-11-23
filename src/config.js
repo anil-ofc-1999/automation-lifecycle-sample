@@ -6,6 +6,9 @@ const toInt = (value, fallback) => {
   return Number.isNaN(n) ? fallback : n;
 };
 
+const MAIL_MODES = ['memory', 'log', 'smtp'];
+const defaultMailMode = () => (process.env.NODE_ENV === 'test' ? 'memory' : 'log');
+
 export const config = Object.freeze({
   env: process.env.NODE_ENV ?? 'development',
   port: toInt(process.env.PORT, 3000),
@@ -26,6 +29,17 @@ export const config = Object.freeze({
   // Business limits (REQUIREMENTS FR-4.3, FR-5.1 — open item O-4 to confirm).
   bookingWindowDays: 30,
   patientChangeCutoffHours: 2,
+  // FR-7: appointment emails. memory (tests) | log (default) | smtp (really sent).
+  // Read on use (getters), so tests can switch the mode.
+  get mailMode() {
+    return process.env.MAIL_MODE || defaultMailMode();
+  },
+  get mailFrom() {
+    return process.env.MAIL_FROM || 'Doctor Appointments <no-reply@example.com>';
+  },
+  get smtpUrl() {
+    return process.env.SMTP_URL;
+  },
 });
 
 // Fails fast at startup instead of failing later on the first request.
@@ -36,5 +50,12 @@ export function assertRequiredConfig() {
   }
   if (process.env.JWT_SECRET.length < 32) {
     throw new Error('JWT_SECRET must be at least 32 characters long.');
+  }
+  const mailMode = process.env.MAIL_MODE;
+  if (mailMode && !MAIL_MODES.includes(mailMode)) {
+    throw new Error(`MAIL_MODE must be one of: ${MAIL_MODES.join(', ')}.`);
+  }
+  if (mailMode === 'smtp' && !process.env.SMTP_URL) {
+    throw new Error('MAIL_MODE=smtp needs SMTP_URL.');
   }
 }

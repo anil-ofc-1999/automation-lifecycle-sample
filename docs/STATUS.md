@@ -1,6 +1,6 @@
 # Project status — Doctor Appointment Booking
 
-_Last updated: 2026-11-22._ Repos: **appointment_node_API** (API + shared docs) and
+_Last updated: 2026-11-23._ Repos: **appointment_node_API** (API + shared docs) and
 **appointment_web** (Angular). All work is on `develop`; `main` gets it through a pull
 request (`develop → main`, "Create a merge commit").
 
@@ -15,22 +15,24 @@ request (`develop → main`, "Create a merge commit").
 | 5   | My Appointments (Upcoming / Past, cancel, reschedule)                  | Patient | ✅     |
 | 6   | Doctor dashboard (day view, completed / no-show, schedule, leave days) | Doctor  | ✅     |
 | 7   | Admin panel (appointments, doctors, specializations)                   | Admin   | ✅     |
+| —   | FR-7 emails to the patient: booked / cancelled / rescheduled (D-31)    | System  | ✅     |
 
 Every feature was finished end to end before the next one: API tests, web unit tests and
 Playwright E2E — positive **and** negative scenarios.
 
 ## 2. Tests
 
-| Layer                         | Tool                   | Count              | Command (repo)                   |
-| ----------------------------- | ---------------------- | ------------------ | -------------------------------- |
-| API unit                      | Vitest + Supertest     | 104                | `npm test` (API)                 |
-| API integration (real DB)     | Vitest, `itest` schema | 347                | `npm run test:integration` (API) |
-| Web unit                      | Vitest via `ng test`   | 487                | `npm test` (web)                 |
-| End-to-end (desktop + mobile) | Playwright             | 125 × 2 = 250 runs | `npm run e2e` (web)              |
-| Load (NFR-1, NFR-2)           | k6                     | 2 scenarios        | `npm run load` (API)             |
+| Layer                         | Tool                   | Count       | Command (repo)                   |
+| ----------------------------- | ---------------------- | ----------- | -------------------------------- |
+| API unit                      | Vitest + Supertest     | 123         | `npm test` (API)                 |
+| API integration (real DB)     | Vitest, `itest` schema | 356         | `npm run test:integration` (API) |
+| Web unit                      | Vitest via `ng test`   | 492         | `npm test` (web)                 |
+| End-to-end (desktop + mobile) | Playwright             | 266 runs    | `npm run e2e` (web)              |
+| Load (NFR-1, NFR-2)           | k6                     | 2 scenarios | `npm run load` (API)             |
 
 - `npm run e2e:demo` (web) — watch the automation in Chrome, slowed down.
-- Pre-commit hooks run lint + format + tests (+ build for web); CI runs the same on GitHub.
+- Pre-commit hooks run lint + format + tests (+ build for web). GitHub CI (both repos) runs the
+  same plus a gitleaks secret scan, CodeQL and the full E2E suite against a fresh PostgreSQL.
 - E2E and load tests never touch real data: E2E uses `E2E …` / `e2e-*@example.com` records
   and deletes them; the load test uses its own `loadtest` schema.
 
@@ -75,7 +77,8 @@ p95 ≈ 620 ms — recorded, not a target.
 - Rate limits per IP: login 5/min, **registration 10/min (new)**; `TRUST_PROXY_HOPS` for
   hosting behind a proxy (new, D-30). Open-redirect protection on login return URLs.
 - Dependabot: weekly update PRs in both repos (new).
-- Next: gitleaks in CI; CodeQL once the API repo is public.
+- gitleaks (whole history) and CodeQL (security-extended) run in CI on every push (2026-11-23).
+- Both repos are public; history scanned clean before the API repo was opened.
 
 ## 6. Deployment plan — Render
 
@@ -101,9 +104,9 @@ change the seed passwords afterwards.
 
 ## 7. Open items
 
-| Who  | Item                                                                            |
-| ---- | ------------------------------------------------------------------------------- |
-| You  | Open PR `develop → main` in both repos and merge with **Create a merge commit** |
-| You  | Rename the API repo to `appointment_node_API` and make it public (D-16)         |
-| You  | Create the Render account and connect GitHub (then the services above)          |
-| Next | gitleaks in CI, CodeQL; E2E in CI (needs API + DB in one job)                   |
+| Who  | Item                                                                                     |
+| ---- | ---------------------------------------------------------------------------------------- |
+| You  | Render: remove the temporary DB IP rule; rotate the DB credential; change seed passwords |
+| You  | Real emails: create an SMTP account, set `MAIL_MODE=smtp` + `SMTP_URL` on Render         |
+| You  | Free Render PostgreSQL expires 2026-12-22: upgrade or recreate before then               |
+| Open | UAT environment (O-3): a 2nd free Render database is not allowed on the free plan        |

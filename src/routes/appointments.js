@@ -15,6 +15,7 @@ import {
   paginationSchema,
 } from '../lib/validation.js';
 import { requireAuth, requireRole } from '../middleware/auth.js';
+import { notifyInBackground } from '../notifications/appointmentEmails.js';
 import {
   bookAppointment,
   cancelAppointment,
@@ -47,6 +48,7 @@ appointmentsRouter.use(requireAuth);
 appointmentsRouter.post('/', requireRole('PATIENT'), async (req, res) => {
   const { doctorId, startAt } = validate(bookSchema, req.body);
   const appointment = await bookAppointment({ patientId: req.user.userId, doctorId, startAt });
+  notifyInBackground({ type: 'BOOKED', appointmentId: appointment.id, requestId: req.id });
   res.status(201).json({ appointment });
 });
 
@@ -109,14 +111,28 @@ appointmentsRouter.get('/', requireRole('ADMIN'), async (req, res) => {
 // FR-5.1, FR-5.5: cancel
 appointmentsRouter.post('/:id/cancel', requireRole('PATIENT', 'ADMIN'), async (req, res) => {
   const { id } = validate(idParamsSchema, req.params);
-  res.json({ appointment: await cancelAppointment({ id, user: req.user }) });
+  const appointment = await cancelAppointment({ id, user: req.user });
+  notifyInBackground({
+    type: 'CANCELLED',
+    appointmentId: id,
+    byAdmin: req.user.role === 'ADMIN',
+    requestId: req.id,
+  });
+  res.json({ appointment });
 });
 
 // FR-5.2: reschedule
 appointmentsRouter.post('/:id/reschedule', requireRole('PATIENT'), async (req, res) => {
   const { id } = validate(idParamsSchema, req.params);
   const { startAt } = validate(rescheduleSchema, req.body);
-  res.status(201).json(await rescheduleAppointment({ id, user: req.user, startAt }));
+  const result = await rescheduleAppointment({ id, user: req.user, startAt });
+  notifyInBackground({
+    type: 'RESCHEDULED',
+    appointmentId: result.appointment.id,
+    previousAppointmentId: id,
+    requestId: req.id,
+  });
+  res.status(201).json(result);
 });
 
 // FR-5.4: complete / no-show (doctor)

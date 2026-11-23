@@ -7,6 +7,8 @@ import { hashPassword } from '../../src/auth/password.js';
 import { signAccessToken } from '../../src/auth/tokens.js';
 import { prisma } from '../../src/db.js';
 import { hhmmToMinutes, minutesToTimeColumn } from '../../src/lib/clinicTime.js';
+import { flushNotifications } from '../../src/notifications/appointmentEmails.js';
+import { clearSentMail } from '../../src/notifications/mailer.js';
 
 export { prisma };
 export const PASSWORD = 'Password123';
@@ -26,6 +28,9 @@ const TABLES = [
 
 // Empties every table (schema-qualified, so the real data can never be touched).
 export async function resetDatabase() {
+  // Background emails of the previous test must not read tables while they are emptied.
+  await flushNotifications();
+  clearSentMail();
   const list = TABLES.map((t) => `"${SCHEMA}"."${t}"`).join(', ');
   await prisma.$executeRawUnsafe(`TRUNCATE ${list} RESTART IDENTITY CASCADE`);
 }
