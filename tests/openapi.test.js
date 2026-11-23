@@ -14,12 +14,13 @@ import { appointmentsRouter } from '../src/routes/appointments.js';
 import { createAuthRouter } from '../src/routes/auth.js';
 import { doctorsRouter } from '../src/routes/doctors.js';
 import { specializationsRouter } from '../src/routes/specializations.js';
-import { meRouter } from '../src/routes/users.js';
+import { meRouter, usersRouter } from '../src/routes/users.js';
 
 // Same mount points as src/app.js
 const MOUNTS = {
   '/auth': createAuthRouter(),
   '/me': meRouter,
+  '/users': usersRouter,
   '/specializations': specializationsRouter,
   '/doctors': doctorsRouter,
   '/appointments': appointmentsRouter,
