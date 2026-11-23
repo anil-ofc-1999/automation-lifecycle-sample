@@ -134,6 +134,23 @@ Seeded accounts (`npm run db:seed`) log in with password `Password123`, e.g. `ad
 | `npm run load`             | k6 load test for NFR-1 / NFR-2 (needs [k6](https://k6.io) installed)         |
 | `npm run load:stress`      | Same without think time — a stress number, not a pass/fail target            |
 
+GitHub Actions (`.github/workflows`) runs on every push to `develop` / `main` and every PR:
+`npm run check` + audit, a **gitleaks** secret scan of the whole history, **CodeQL**, and the
+full **Playwright E2E** suite (this API + the web app + a throw-away PostgreSQL).
+
+## Emails (FR-7)
+
+The patient gets an email after booking, cancelling (by them or the clinic) and
+rescheduling. `MAIL_MODE` decides what happens (D-31):
+
+| `MAIL_MODE` | What happens                                                 | Used by                 |
+| ----------- | ------------------------------------------------------------ | ----------------------- |
+| `memory`    | Captured in memory, never sent                               | tests (default)         |
+| `log`       | One JSON log line: event, masked address, subject — not sent | local, Render (default) |
+| `smtp`      | Really sent through `SMTP_URL`; `MAIL_FROM` is the sender    | once an account exists  |
+
+Keep `SMTP_URL` (it contains the mail password) in `.env` / the Render dashboard, never in git.
+
 ### Load test (NFR-1, NFR-2)
 
 `npm run load` re-creates a separate `loadtest` schema (migrate + seed — your data is never
@@ -171,5 +188,5 @@ Never commit real secrets. Copy `.env.example` to `.env` and fill in local value
 | 2026-11-22 | `npm audit --omit=dev`: 3 high (ReDoS in `effect` ≤ 3.22.0) via the Prisma CLI    | Fixed: `overrides.effect = 3.22.5` (same major version; Prisma generate / migrate verified). Remove the override once Prisma ships a fixed `effect`. Audit now 0.                          |
 | 2026-11-22 | Registration had no rate limit (bulk account creation)                            | Fixed: 10 per minute per IP (`REGISTER_RATE_LIMIT_PER_MINUTE`), D-30.                                                                                                                      |
 | 2026-11-22 | Behind a hosting proxy all users would share one IP for rate limits               | Fixed: `TRUST_PROXY_HOPS` (set `1` on Render, `0` locally so `X-Forwarded-For` cannot be faked), D-30.                                                                                     |
-| 2026-11-22 | Secret scan of the full git history (both repos)                                  | Clean: `.env` never committed, only `CHANGE_ME` placeholders and test-only values. Next: add gitleaks to CI. Dependabot added (weekly, both repos).                                        |
+| 2026-11-22 | Secret scan of the full git history (both repos)                                  | Clean: `.env` never committed, only `CHANGE_ME` placeholders and test-only values. Dependabot added (weekly, both repos). 2026-11-23: gitleaks + CodeQL now run in CI.                     |
 | 2026-11-18 | GitHub Free does not enforce rulesets on **private** repos                        | Repo made public (no secrets / personal data in code). Same plan-dependency exists in Bitbucket ("Enforce merge checks" needs Premium) — check the plan before rolling out at the company. |

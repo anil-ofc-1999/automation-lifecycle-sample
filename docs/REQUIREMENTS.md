@@ -150,7 +150,7 @@ BOOKED ──► COMPLETED     (doctor)
 | FR-6.2 | Doctor: own appointments for a selected date, with patient name and status.       |
 | FR-6.3 | Admin: all appointments with filters by doctor, date range and status, paginated. |
 
-### FR-7 Notifications (Phase 2 — optional)
+### FR-7 Notifications (Phase 2 — implemented 2026-11-23, D-31)
 
 | ID     | Requirement                                                                                                  |
 | ------ | ------------------------------------------------------------------------------------------------------------ |
@@ -286,3 +286,4 @@ Resolved on 2026-11-18: Express, Prisma, Angular 21 + npm, mono-repo, Docker for
 | 0.1     | 2026-11-18 | Initial draft                                                            |
 | 0.2     | 2026-11-18 | Tech stack decisions recorded; open decisions updated                    |
 | 0.3     | 2026-11-18 | API implemented for FR-1 – FR-6; clarifications in DECISIONS D-22 – D-26 |
+| 0.4     | 2026-11-23 | FR-7 emails implemented (D-31); gitleaks, CodeQL and E2E in CI           |
