@@ -138,6 +138,23 @@ GitHub Actions (`.github/workflows`) runs on every push to `develop` / `main` an
 `npm run check` + audit, a **gitleaks** secret scan of the whole history, **CodeQL**, and the
 full **Playwright E2E** suite (this API + the web app + a throw-away PostgreSQL).
 
+## Add many sample doctors (D-33)
+
+`scripts/data/doctors.json` holds 100 fake doctors in 17 specializations (`@example.com`
+emails only). The script adds whatever is missing **through the API as an admin**, so it
+works locally and on the live site without any database access:
+
+```bash
+npm run doctors:add -- --dry-run   # only shows what would be added
+npm run doctors:add                # adds it
+```
+
+It asks for the API (Enter = local, or type `live`), the admin email and password, and a
+password for the new doctor accounts (typed hidden, never saved). Nothing is duplicated:
+specializations are matched by name ignoring case, doctors by email, and running it again
+adds nothing. Inactive specializations are left alone. Each new doctor gets the weekly
+hours named in the file. Edit the JSON (or pass `--file other.json`) to add your own.
+
 ## Emails (FR-7)
 
 The patient gets an email after booking, cancelling (by them or the clinic) and

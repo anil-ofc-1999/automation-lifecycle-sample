@@ -161,6 +161,37 @@ async function ownSchedule(doctorId) {
   return blocks.map(toScheduleBlock);
 }
 
+// FR-3.1, FR-3.2: validates and replaces a doctor's whole weekly schedule.
+async function replaceSchedule(doctorId, body) {
+  const { blocks } = validate(scheduleSchema, body);
+
+  const clash = findOverlap(blocks);
+  if (clash) {
+    throw new AppError(
+      400,
+      'SCHEDULE_OVERLAP',
+      'Schedule blocks on the same day must not overlap.',
+      [
+        { field: `blocks.${clash[0].index}`, message: `${clash[0].startTime}-${clash[0].endTime}` },
+        { field: `blocks.${clash[1].index}`, message: `${clash[1].startTime}-${clash[1].endTime}` },
+      ],
+    );
+  }
+
+  await prisma.$transaction([
+    prisma.doctorSchedule.deleteMany({ where: { doctorId } }),
+    prisma.doctorSchedule.createMany({
+      data: blocks.map((b) => ({
+        doctorId,
+        dayOfWeek: b.dayOfWeek,
+        startTime: minutesToTimeColumn(hhmmToMinutes(b.startTime)),
+        endTime: minutesToTimeColumn(hhmmToMinutes(b.endTime)),
+      })),
+    }),
+  ]);
+  return ownSchedule(doctorId);
+}
+
 // ---------- routes ----------
 
 export const doctorsRouter = Router();
@@ -177,33 +208,7 @@ doctorsRouter.get('/me/schedule', requireRole('DOCTOR'), async (req, res) => {
 // PUT replaces the whole weekly schedule. Existing bookings are not touched (FR-3.6).
 doctorsRouter.put('/me/schedule', requireRole('DOCTOR'), async (req, res) => {
   const doctor = await loadOwnDoctor(req);
-  const { blocks } = validate(scheduleSchema, req.body);
-
-  const clash = findOverlap(blocks);
-  if (clash) {
-    throw new AppError(
-      400,
-      'SCHEDULE_OVERLAP',
-      'Schedule blocks on the same day must not overlap.',
-      [
-        { field: `blocks.${clash[0].index}`, message: `${clash[0].startTime}-${clash[0].endTime}` },
-        { field: `blocks.${clash[1].index}`, message: `${clash[1].startTime}-${clash[1].endTime}` },
-      ],
-    );
-  }
-
-  await prisma.$transaction([
-    prisma.doctorSchedule.deleteMany({ where: { doctorId: doctor.id } }),
-    prisma.doctorSchedule.createMany({
-      data: blocks.map((b) => ({
-        doctorId: doctor.id,
-        dayOfWeek: b.dayOfWeek,
-        startTime: minutesToTimeColumn(hhmmToMinutes(b.startTime)),
-        endTime: minutesToTimeColumn(hhmmToMinutes(b.endTime)),
-      })),
-    }),
-  ]);
-  res.json({ blocks: await ownSchedule(doctor.id) });
+  res.json({ blocks: await replaceSchedule(doctor.id, req.body) });
 });
 
 // Upcoming leave dates (today onwards).
@@ -345,6 +350,25 @@ doctorsRouter.post('/', requireRole('ADMIN'), async (req, res) => {
     if (uniqueViolationIndex(err)) throw emailTaken();
     throw err;
   }
+});
+
+// D-33: admin reads / replaces any doctor's weekly schedule (bulk setup, e.g. the
+// add-doctors script, without logging in as each doctor).
+async function findDoctorOr404(req) {
+  const { id } = validate(idParamsSchema, req.params);
+  const doctor = await prisma.doctor.findUnique({ where: { id } });
+  if (!doctor) throw doctorNotFound();
+  return doctor;
+}
+
+doctorsRouter.get('/:id/schedule', requireRole('ADMIN'), async (req, res) => {
+  const doctor = await findDoctorOr404(req);
+  res.json({ blocks: await ownSchedule(doctor.id) });
+});
+
+doctorsRouter.put('/:id/schedule', requireRole('ADMIN'), async (req, res) => {
+  const doctor = await findDoctorOr404(req);
+  res.json({ blocks: await replaceSchedule(doctor.id, req.body) });
 });
 
 // Inactive doctors are hidden from patients and cannot be booked (FR-2.3).
