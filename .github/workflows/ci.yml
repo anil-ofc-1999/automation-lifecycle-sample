@@ -48,7 +48,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up Node.js (version from .nvmrc)
         uses: actions/setup-node@v5
@@ -99,7 +99,7 @@ jobs:
 
     steps:
       - name: Checkout code (full history)
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -147,11 +147,11 @@ jobs:
 
     steps:
       - name: Checkout API
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       # The web branch that matches this API branch: main for main / PRs to main, else develop.
       - name: Checkout web
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           repository: anil-ofc-1999/appointment_web
           ref: ${{ (github.base_ref || github.ref_name) == 'main' && 'main' || 'develop' }}
