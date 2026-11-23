@@ -18,6 +18,7 @@ request (`develop → main`, "Create a merge commit").
 | —   | FR-7 emails to the patient: booked / cancelled / rescheduled (D-31)    | System  | ✅     |
 | —   | Change password, signs out other sessions (D-32)                       | Anyone  | ✅     |
 | —   | `npm run doctors:add`: 100 sample doctors, 17 specializations (D-33)   | Admin   | ✅     |
+| —   | Admin reset password for doctors / patients (D-35)                     | Admin   | ✅     |
 
 Every feature was finished end to end before the next one: API tests, web unit tests and
 Playwright E2E — positive **and** negative scenarios.

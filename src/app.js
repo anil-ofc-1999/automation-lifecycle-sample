@@ -10,7 +10,7 @@ import { createAuthRouter } from './routes/auth.js';
 import { doctorsRouter } from './routes/doctors.js';
 import { healthRouter } from './routes/health.js';
 import { specializationsRouter } from './routes/specializations.js';
-import { meRouter } from './routes/users.js';
+import { meRouter, usersRouter } from './routes/users.js';
 
 // Builds the Express app without starting a server, so tests can use it directly.
 export function createApp() {
@@ -48,6 +48,7 @@ export function createApp() {
   );
   api.use('/auth', createAuthRouter());
   api.use('/me', meRouter);
+  api.use('/users', usersRouter);
   api.use('/specializations', specializationsRouter);
   api.use('/doctors', doctorsRouter);
   api.use('/appointments', appointmentsRouter);
