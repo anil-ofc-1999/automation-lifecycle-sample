@@ -17,6 +17,7 @@ const SCHEMA = new URL(process.env.DATABASE_URL).searchParams.get('schema');
 if (SCHEMA !== 'itest') throw new Error('Integration tests must run on the itest schema.');
 
 const TABLES = [
+  'password_reset_tokens',
   'appointment_audit',
   'appointments',
   'doctor_leaves',

@@ -168,6 +168,10 @@ rescheduling. `MAIL_MODE` decides what happens (D-31):
 
 Keep `SMTP_URL` (it contains the mail password) in `.env` / the Render dashboard, never in git.
 
+"Forgot password" (D-37) emails a one-time link (30 minutes) to `APP_URL/reset-password`.
+It uses the same `MAIL_MODE`: with `log` the link is **not** written anywhere, so on the
+live site it starts working once `MAIL_MODE=smtp` and `SMTP_URL` are set.
+
 ### Load test (NFR-1, NFR-2)
 
 `npm run load` re-creates a separate `loadtest` schema (migrate + seed — your data is never

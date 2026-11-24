@@ -19,6 +19,8 @@ request (`develop → main`, "Create a merge commit").
 | —   | Change password, signs out other sessions (D-32)                       | Anyone  | ✅     |
 | —   | `npm run doctors:add`: 100 sample doctors, 17 specializations (D-33)   | Admin   | ✅     |
 | —   | Admin reset password for doctors / patients (D-35)                     | Admin   | ✅     |
+| —   | Admin edits a doctor's working hours (D-36)                            | Admin   | ✅     |
+| —   | Forgot password by email (D-37) — live once an email account is set    | Anyone  | ✅     |
 
 Every feature was finished end to end before the next one: API tests, web unit tests and
 Playwright E2E — positive **and** negative scenarios.

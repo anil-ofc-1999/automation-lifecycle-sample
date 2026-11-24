@@ -119,6 +119,51 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Email a one-time reset link (D-37)
+      description: >-
+        Always answers 200 with the same message, whether or not the email exists. The link
+        works once, for 30 minutes. Limited to 10 requests per minute per IP.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '200': { $ref: '#/components/responses/MessageResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Set a new password with a reset link's token (D-37)
+      description: >-
+        400 INVALID_RESET_LINK for an unknown, used or expired link. Signs out every
+        session of that user.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, newPassword]
+              properties:
+                token: { type: string }
+                newPassword: { type: string, minLength: 8, maxLength: 72 }
+      responses:
+        '200': { $ref: '#/components/responses/MessageResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
   /me:
     get:
       tags: [Auth]
@@ -734,6 +779,14 @@ components:
         totalPages: { type: integer }
 
   responses:
+    MessageResponse:
+      description: Done
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: { type: string }
     UserResponse:
       description: User
       content:

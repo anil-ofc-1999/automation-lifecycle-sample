@@ -1,0 +1,6 @@
+# False positives reviewed by a person. Each line is a gitleaks fingerprint:
+#   <commit>:<file>:<rule>:<line>
+# Only add a line after checking that the "secret" is test data, never a real credential.
+
+# Made-up test password next to a variable named "token" (D-37 race test), not a key.
+b7dbcb73de85e8b9a19b9101d8300d98e7d1d5b4:tests/integration/forgotPassword.test.js:generic-api-key:181
