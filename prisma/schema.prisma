@@ -27,26 +27,42 @@ enum AppointmentStatus {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  name         String   @db.VarChar(100)
+  id                Int       @id @default(autoincrement())
+  name              String    @db.VarChar(100)
   /// FR-1.2: also unique case-insensitively (lower(email) index in migration).
-  email        String   @unique @db.VarChar(255)
-  phone        String?  @db.VarChar(20)
+  email             String    @unique @db.VarChar(255)
+  phone             String?   @db.VarChar(20)
   /// FR-1.4: bcrypt hash only, never the plain password.
-  passwordHash String   @map("password_hash") @db.VarChar(255)
+  passwordHash      String    @map("password_hash") @db.VarChar(255)
   /// D-32: access tokens issued before this moment are rejected (set on password change).
   passwordChangedAt DateTime? @map("password_changed_at") @db.Timestamptz(3)
-  role         Role     @default(PATIENT)
-  isActive     Boolean  @default(true) @map("is_active")
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  role              Role      @default(PATIENT)
+  isActive          Boolean   @default(true) @map("is_active")
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   doctor                Doctor?
-  patientAppointments   Appointment[]      @relation("PatientAppointments")
-  cancelledAppointments Appointment[]      @relation("CancelledBy")
+  patientAppointments   Appointment[]        @relation("PatientAppointments")
+  cancelledAppointments Appointment[]        @relation("CancelledBy")
   auditEntries          AppointmentAudit[]
+  passwordResetTokens   PasswordResetToken[]
 
   @@map("users")
+}
+
+/// D-37: one-time "forgot password" links. Only the SHA-256 of the token is stored.
+model PasswordResetToken {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @map("user_id")
+  tokenHash String    @unique @map("token_hash") @db.VarChar(64)
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(3)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
 }
 
 model Specialization {

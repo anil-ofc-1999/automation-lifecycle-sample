@@ -31,6 +31,12 @@ export const config = Object.freeze({
   // Business limits (REQUIREMENTS FR-4.3, FR-5.1 — open item O-4 to confirm).
   bookingWindowDays: 30,
   patientChangeCutoffHours: 2,
+  // D-37: the web app's address, used in "forgot password" email links.
+  get appUrl() {
+    return (process.env.APP_URL || 'http://localhost:4200').replace(/\/+$/, '');
+  },
+  // D-37: how long a "forgot password" link works.
+  passwordResetMinutes: toInt(process.env.PASSWORD_RESET_MINUTES, 30),
   // FR-7: appointment emails. memory (tests) | log (default) | smtp (really sent).
   // Read on use (getters), so tests can switch the mode.
   get mailMode() {

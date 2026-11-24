@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { emailField, nameField, passwordField, phoneField } from '../auth/fields.js';
 import { DUMMY_HASH, hashPassword, verifyPassword } from '../auth/password.js';
+import { requestPasswordReset, resetPasswordWithToken } from '../auth/passwordReset.js';
 import { signAccessToken } from '../auth/tokens.js';
 import { config } from '../config.js';
 import { prisma, uniqueViolationIndex } from '../db.js';
@@ -32,6 +33,12 @@ const changePasswordSchema = z
     message: 'The new password must be different from the current one.',
     path: ['newPassword'],
   });
+
+const forgotSchema = z.object({ email: emailField });
+const resetWithTokenSchema = z.object({
+  token: z.string().min(20, 'This reset link is not valid.').max(200),
+  newPassword: passwordField,
+});
 
 // Same message for unknown email and wrong password (no user enumeration).
 const invalidCredentials = () =>
@@ -81,6 +88,21 @@ export function createAuthRouter() {
         error: {
           code: 'TOO_MANY_REQUESTS',
           message: 'Too many password change attempts. Try again in a minute.',
+        },
+      }),
+  });
+
+  // D-37: "forgot password" requests and link uses, limited like registrations.
+  const resetLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    limit: config.registerRateLimitPerMinute,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+    handler: (_req, res) =>
+      res.status(429).json({
+        error: {
+          code: 'TOO_MANY_REQUESTS',
+          message: 'Too many password reset attempts. Try again in a minute.',
         },
       }),
   });
@@ -159,6 +181,28 @@ export function createAuthRouter() {
       expiresIn: config.jwtExpiresIn,
       user: toPublicUser(updated),
     });
+  });
+
+  // D-37: always the same answer, so it never reveals whether an email is registered.
+  router.post('/forgot-password', resetLimiter, async (req, res) => {
+    const { email } = validate(forgotSchema, req.body);
+    await requestPasswordReset(email, { requestId: req.id });
+    res.status(200).json({
+      message: 'If an account exists for this email, a reset link has been sent.',
+    });
+  });
+
+  // D-37: sets the new password from a valid, unused, unexpired link.
+  router.post('/reset-password', resetLimiter, async (req, res) => {
+    const { token, newPassword } = validate(resetWithTokenSchema, req.body);
+    if (!(await resetPasswordWithToken(token, newPassword))) {
+      throw new AppError(
+        400,
+        'INVALID_RESET_LINK',
+        'This reset link is not valid any more. Please ask for a new one.',
+      );
+    }
+    res.status(200).json({ message: 'Your password has been changed. Please log in.' });
   });
 
   return router;

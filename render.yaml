@@ -40,6 +40,8 @@ services:
         value: '1' # Render's proxy: rate limits count per real client (D-30)
       - key: DB_POOL_MAX
         value: '5' # small databases allow few connections (D-29)
+      - key: APP_URL
+        value: https://appointment-web-hsfr.onrender.com # links in emails (D-37)
       - key: MAIL_MODE
         value: log # FR-7 emails are logged (address masked) until SMTP_URL is set (D-31)
 
